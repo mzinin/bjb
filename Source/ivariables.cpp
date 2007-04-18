@@ -99,4 +99,3 @@ int IVariables::read(std::istream& in) const {
 
   return var;
 }
-

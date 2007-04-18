@@ -81,6 +81,8 @@ public:
   friend bool operator==(const IMyMonom64 &a, const IMyMonom64 &b);
   friend bool operator!=(const IMyMonom64 &a, const IMyMonom64 &b) { return !(a==b); };
 
+  operator unsigned long() const {return *(unsigned long*)&exp;};
+  int num_of_only_var() const;
   //void assertValid(const char* fileName, int fileLine) const;
 };
 
@@ -174,7 +176,6 @@ inline void IMyMonom64::lcm(const IMyMonom64& a, const IMyMonom64& b) {
   total_degree = exp.count();
 }
 
-
 inline int IMyMonom64::compare(const IMyMonom64& a) const {
   if (total_degree<a.total_degree)
     return -1;
@@ -194,4 +195,14 @@ inline int IMyMonom64::compare(const IMyMonom64& a) const {
 
 inline bool operator==(const IMyMonom64 &a, const IMyMonom64 &b){
   return a.exp==b.exp;
+}
+
+inline int IMyMonom64::num_of_only_var() const {
+  int i = -1;
+  unsigned long exp_int = *(unsigned long*)&exp;
+  while(exp_int){
+    exp_int = exp_int>>1;
+    i++;
+  }
+  return i;
 }

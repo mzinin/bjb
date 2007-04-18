@@ -70,7 +70,7 @@ Triple128* JanetTree128::find(const IMyMonom128& m) const {
 void JanetTree128::del(Triple128 *trpl) {
   //IASSERT(find(trpl->poly->lm()) != NULL);
   Iterator j(mRoot);
-  //
+  //подсчет ветвлений
   int var=0, vet=0;
   if (j.isNextDeg() && j.isNextVar()) vet++;
 
@@ -92,7 +92,7 @@ void JanetTree128::del(Triple128 *trpl) {
     }
   } while(true);
 
-  //
+  //собственно удаление
   j = mRoot;
   var=0;
   bool varDirection=false;

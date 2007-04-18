@@ -41,7 +41,7 @@ void init128(char* filename){
 
   ifstream tmp_in,tmp_in2;
   ofstream tmp_out;
-  //-----
+  //-----чтение начального набора
   while (c!=';'){
     fin>>c;
     if (c==',' || c==';') {s[i]='\n';i++;s[i]='\0';}
@@ -57,13 +57,13 @@ void init128(char* filename){
     it=pl.insert(it, pInterface->copy(*poly));
   }
   tmp_in.close();
-  //-----
+  //-----конец чтения начального набора
 
   i=0;
   s[0]='\0';
   c='0';
 
-  //-----
+  //-----чтение ответа
   while (c!=';'){
     fin>>c;
     if (c==',' || c==';') {s[i]='\n';i++;s[i]='\0';}
@@ -79,7 +79,7 @@ void init128(char* filename){
     an_it=answer.insert(an_it, pInterface->copy(*poly));
   }
   tmp_in2.close();
-  //-----
+  //-----конец чтения ответа
   fin.close();
 
   timer.start();
@@ -89,7 +89,7 @@ void init128(char* filename){
   cout<<timer<<endl;
 
   bool Is_Correct=true,Found;
-  //-----
+  //-----проверка
   if (bg.length()<answer.size())
     Is_Correct=false;
   else{
@@ -110,7 +110,7 @@ void init128(char* filename){
       ++an_it;
     }
   }
-  //-----
+  //-----конец проверки
   if (Is_Correct)
     cout<<"The answer is CORRECT"<<endl;
   else

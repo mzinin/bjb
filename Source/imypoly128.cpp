@@ -346,7 +346,7 @@ void IMyPoly128::mult(const IMyPoly128 &a) {
 }
 
 void IMyPoly128::pow(unsigned deg) {
-//степеней-то нет, эта функция ничего не делает
+//
 }
 
 void IMyPoly128::reduction(const IMyPoly128 &a) {

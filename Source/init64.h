@@ -85,7 +85,7 @@ void init64(char* filename){
   timer.start();
   IGBasis64 bg(pl);
   timer.stop();
-  //cout<<bg<<endl;
+  cout<<bg<<endl;
   cout<<timer<<endl;
 
   bool Is_Correct=true,Found;
@@ -105,7 +105,7 @@ void init64(char* filename){
       if (!Found)	{
         Is_Correct=false;
 	cout<<"The mistake is here "<<**an_it<<endl;
-        break;
+        //break;
       }
       ++an_it;
     }

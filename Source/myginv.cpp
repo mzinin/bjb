@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
       return 1;
     }
   }
-  
+
   IVariables vars;
   //-----подсчет переменных
   int i=0;
