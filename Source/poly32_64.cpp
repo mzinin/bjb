@@ -1,49 +1,28 @@
 #include <cstdarg>
 #include <cstring>
-#include "imypoly128.h"
+#include "poly32_64.h"
 
-IMyPolyInterface128::IMyPolyInterface128():
-    mMonomInterface(NULL){
+PolyInterface32_64::PolyInterface32_64(MonomInterface32_64 *mInterface):
+    mMonomInterface(mInterface){
 }
 
-IMyPolyInterface128* IMyPolyInterface128::create(IMyMonomInterface128* monomInterface) {
-  if (monomInterface == NULL)
-    IERROR("error in IPolyInterface: monomInterface == NULL");
-  IMyPolyInterface128* r = new IMyPolyInterface128;
-  if (r)
-    r->mMonomInterface = monomInterface;
-  return r;
+Poly32_64* PolyInterface32_64::create() {
+  return new Poly32_64(this);
 }
 
-IMyPoly128* IMyPolyInterface128::create() {
-  return new IMyPoly128(this);
-}
-
-IMyPoly128* IMyPolyInterface128::copy(const IMyPoly128& a) {
-  //IASSERT(this == a.polyInterface());
-  return new IMyPoly128(a);
-}
-
-IMyPoly128* IMyPolyInterface128::copy(const IMyPoly128& a, int var) {
-  //IASSERT(this == a.polyInterface());
-  return new IMyPoly128(a, var);
-}
-
-IMyPoly128::IMyPoly128(IMyPolyInterface128* r):
-   mRealization(r),
-   mHead() {
+Poly32_64::Poly32_64(PolyInterface32_64* r):
+   mRealization(r), mHead() {
    len=0;
   //IASSERT(mRealization);
   }
 
-IMyPoly128::IMyPoly128(const IMyPoly128& a):
-    mRealization(a.mRealization),
-    mHead() {
+Poly32_64::Poly32_64(const Poly32_64& a):
+    mRealization(a.mRealization), mHead() {
   //IASSERT(mRealization);
   ConstIterator ia(a.mHead);
   Iterator i(mHead);
   while(ia) {
-    i.insert(*monomInterface()->copy(*ia));
+    i.insert(*ia);
     ia++;
     i++;
   }
@@ -51,61 +30,28 @@ IMyPoly128::IMyPoly128(const IMyPoly128& a):
   //IASSERTVALID(*this);
 }
 
-IMyPoly128::IMyPoly128(const IMyPoly128& a, int var):
-    mRealization(a.mRealization),
-    mHead() {
-  //IASSERT(mRealization);
-  ConstIterator ia(a.mHead);
-  Iterator i(mHead);
-  while(ia) {
-    i.insert(*monomInterface()->copy(*ia));
-    ia++;
-    i++;
-  }
-  len =a.len;
-  mult(var);
-  //IASSERTVALID(*this);
-}
-
-IMyPoly128::IMyPoly128(const IMyPoly128& a, const IMyMonom128& m):
-    mRealization(a.mRealization),
-    mHead() {
-  //IASSERT(mRealization);
-  ConstIterator ia(a.mHead);
-  Iterator i(mHead);
-  while(ia) {
-    i.insert(*monomInterface()->copy(*ia));
-    ia++;
-    i++;
-  }
-  len = a.len;
-  mult(m);
-  //IASSERTVALID(*this);
-}
-
-void IMyPoly128::setOne() {
+void Poly32_64::setOne() {
   Iterator i(mHead);
   i.clear();
-  mHead = monomInterface()->create();
+  mHead = new Monom32_64(monomInterface());
   mHead->setZero();
   mHead->Next = NULL;
   len =1;
 }
 
-void IMyPoly128::setZero() {
+void Poly32_64::setZero() {
   Iterator i(mHead);
   i.clear();
   mHead = NULL;
   len = 0;
 }
 
-void IMyPoly128::set(const IMyPoly128& a) {
-  //IASSERT(polyInterface() == a.polyInterface());
+void Poly32_64::set(const Poly32_64& a) {
   Iterator i(mHead);
   i.clear();
   ConstIterator ia(a.mHead);
   while(ia) {
-    i.insert(*monomInterface()->copy(*ia));
+    i.insert(*ia);
     ++i;
     ++ia;
   }
@@ -113,9 +59,8 @@ void IMyPoly128::set(const IMyPoly128& a) {
   //IASSERTVALID(*this);
 }
 
-void IMyPoly128::swap(IMyPoly128 &a) {
-  //IASSERT(polyInterface() == a.polyInterface());
-  IMyMonom128 *tmp;
+void Poly32_64::swap(Poly32_64 &a) {
+  Monom32_64 *tmp;
   tmp = mHead;
   mHead = a.mHead;
   a.mHead = tmp;
@@ -126,38 +71,62 @@ void IMyPoly128::swap(IMyPoly128 &a) {
   a.len = itmp;
 }
 
-int IMyPoly128::degree() const {
+bool Poly32_64::isBinomial() const {
+  if (len!=2) return false;
+  if (degree_of_monom(0)!=2 || degree_of_monom(1)!=1) return false;
+  Poly32_64 tmp = *this;
+  Monom32_64 m0 = tmp.lm();
+  tmp.rid_of_lm();
+  Monom32_64 m1 = tmp.lm();
+  if (!m0.divisibility(m1))
+    return false;
+  else
+     m0.divide(m0,m1);
+  if (!m0.divisibility(m1))
+    return false;
+  else
+    return true;
+}
+
+int Poly32_64::degree() const {
   if (mHead)
     return mHead->degree();
   else
     return -100;
 }
 
-int IMyPoly128::degree_of_monom(int i) const {
+int Poly32_64::degree_of_monom(int i) const {
    ConstIterator cit(mHead);
    for (int j=0; j<i; j++)
      cit++;
    return cit->degree();
 }
 
-int IMyPoly128::deg(int var){
+int Poly32_64::deg(int var){
   //IASSERT(0 <= var && var < monomInterface()->dimIndepend());
   ConstIterator i(mHead);
   int output = 0;
-  while (i && !output){
+  while (i){
     if (output < i->deg(var)) output = i->deg(var);
     ++i;
   }
   return output;
 }
 
-void IMyPoly128::rid_of_lm(){
+void Poly32_64::rid_of_lm(){
   Iterator i(mHead);
   i.del();
   len--;
 }
 
-void IMyPoly128::add(const IMyMonom128& m){
+void Poly32_64::rid_of_lastm() {
+  Iterator i(mHead);
+  while (i->Next) i++;
+  i.del();
+  len--;
+}
+
+void Poly32_64::add(const Monom32_64& m){
   Iterator i(mHead);
   bool placed=false;
   while (i && !placed)
@@ -166,7 +135,7 @@ void IMyPoly128::add(const IMyMonom128& m){
         i++;
 	break;
       case -1:
-        i.insert(*monomInterface()->copy(m));
+        i.insert(m);
 	placed = true;
 	len++;
 	break;
@@ -178,22 +147,22 @@ void IMyPoly128::add(const IMyMonom128& m){
     }
 
   if (!placed){
-    i.insert(*monomInterface()->copy(m));
+    i.insert(m);
     len++;
   }
 }
 
-void IMyPoly128::add(IMyPoly128& a) {
+void Poly32_64::add(Poly32_64& a) {
   //IASSERT(polyInterface() == a.polyInterface());
   Iterator i1(mHead);
   ConstIterator i2(a.mHead);
-  while(i1 && i2)
+  while(i1 && i2){
     switch(i1->compare(*i2)) {
     case 1:
       i1++;
       break;
     case -1:
-      i1.insert(*monomInterface()->copy(*i2));
+      i1.insert(*i2);
       i2++;
       i1++;
       len++;
@@ -204,9 +173,10 @@ void IMyPoly128::add(IMyPoly128& a) {
       len--;
       break;
     }
+  }
 
   while(i2){
-    i1.insert(*monomInterface()->copy(*i2));
+    i1.insert(*i2);
     i1++;
     i2++;
     len++;
@@ -214,16 +184,50 @@ void IMyPoly128::add(IMyPoly128& a) {
   //IASSERTVALID(*this);
 }
 
-void IMyPoly128::mult(int var) {
-  if (isZero()) return; //
+void Poly32_64::mult(int var, unsigned deg) {
+  if (isZero()) return; //ноль ни на что не умножаем
+  Iterator i(mHead);
+
+  while (i){
+    i->prolong(var,deg);
+    i++;
+  }
+}
+
+void Poly32_64::mult(const Monom32_64& m) {
+  if (isZero()) return; //ноль ни на что не умножаем
+  Iterator i(mHead);
+
+  while (i) {
+    i->mult(m);
+    i++;
+  }
+}
+
+void Poly32_64::mult(const Poly32_64 &a) {
+  Poly32_64 p(mRealization);
+  ConstIterator ia(a.mHead);
+  while(ia) {
+    Poly32_64 tmp(*this);
+    tmp.mult(*ia);
+    p.add(tmp);
+    ia++;
+    //IASSERTVALID(*p);
+  }
+  swap(p);
+  //IASSERTVALID(*this);
+}
+
+void Poly32_64::mult1(int var, unsigned deg) {
+  if (isZero()) return; //ноль ни на что не умножаем
   Iterator i(mHead), itmp;
-  i->prolong(var); //
+  i->prolong1(var); //старший моном просто умножается
   i++;
   bool moved;
 
   while (i)
     if (!i->deg(var)){
-      i->prolong(var);
+      i->prolong1(var);
       moved = false;
       itmp = begin(); //
       while (itmp!=i && !moved) {
@@ -253,24 +257,18 @@ void IMyPoly128::mult(int var) {
     }
     else
       i++;
-
 }
 
-void IMyPoly128::mult(int var, unsigned deg) {
-  if (var>0) mult(var);
-  //IASSERTVALID(*this);
-}
-
-void IMyPoly128::mult(const IMyMonom128& m) {
-  if (isZero()) return; //
+void Poly32_64::mult1(const Monom32_64& m) {
+  if (isZero()) return; //ноль ни на что не умножаем
   Iterator i(mHead), itmp, i_minus;
-  i->mult(m); //
+  i->mult1(m); //
   i++;
   bool moved;
   i_minus = begin();
 
   while (i) {
-    i->mult(m);
+    i->mult1(m);
     if (i!=i_minus)
       switch (i->compare(*i_minus)){
       case -1:
@@ -322,43 +320,33 @@ void IMyPoly128::mult(const IMyMonom128& m) {
       }
       if (!moved) i++;
       break;
-
     }
     else
      i++;
   }
 }
 
-void IMyPoly128::mult(const IMyPoly128 &a) {
-  //IASSERT(polyInterface() == a.polyInterface());
-  IMyPoly128 *p = new IMyPoly128(polyInterface());
-  ConstIt ia(a.mHead);
+void Poly32_64::mult1(const Poly32_64 &a) {
+  Poly32_64 p(mRealization);
+  ConstIterator ia(a.mHead);
   while(ia) {
-    IMyPoly128 *tmp = new IMyPoly128(*this, *ia);
-    p->add(*tmp);
-    delete tmp;
+    Poly32_64 tmp(*this);
+    tmp.mult1(*ia);
+    p.add(tmp);
     ia++;
-    //IASSERTVALID(*p);
   }
-  swap(*p);
-  delete p;
-  //IASSERTVALID(*this);
+  swap(p);
 }
 
-void IMyPoly128::pow(unsigned deg) {
-//
-}
-
-void IMyPoly128::reduction(const IMyPoly128 &a) {
-  //IASSERT(polyInterface() == a.polyInterface());
-  IMyMonom128 *m2(monomInterface()->create());
-  IMyPoly128 *p;
+void Poly32_64::reduction(const Poly32_64 &a) {
+  Monom32_64 *m2 = new Monom32_64(monomInterface());
+  Poly32_64 *p;
 
   ConstIterator j(mHead);
   while (j)
     if (j->divisibility(a.lm())){
       m2->divide(*j, a.lm());
-      p = new IMyPoly128(a);
+      p = new Poly32_64(a);
       p->mult(*m2);
       add(*p); delete p;
       j.mConstIt=mHead;
@@ -373,8 +361,8 @@ void IMyPoly128::reduction(const IMyPoly128 &a) {
 
   while (i)
     if (i->divisibility(a.lm())){
-      m2->divide1(*i, a.lm());
-      p = new IMyPoly128(a);
+      m2->divide(*i, a.lm());
+      p = new Poly32_64(a);
       p->mult(*m2);
       add(*p); delete p;
       i=j;
@@ -386,15 +374,59 @@ void IMyPoly128::reduction(const IMyPoly128 &a) {
     }
 }
 
-void IMyPoly128::reduction1(const IMyPoly128 &a) {
-  IMyMonom128 *m2(monomInterface()->create());
-  IMyPoly128 *p;
+void Poly32_64::reduction1(const Poly32_64 &a) {
+  Monom32_64 *m2 = new Monom32_64(monomInterface());
+  Poly32_64 *p;
+
+  Iterator j(mHead);
+  while (j)
+    if (j->divisibility(a.lm())){
+      m2->divide(*j, a.lm());
+      p = new Poly32_64(a);
+      if (j->isHG()){
+        j.del();
+        p->rid_of_lm();
+      }
+      p->mult1(*m2);
+      add(*p); delete p;
+      j.mIt=&mHead;
+    }
+    else
+      break;
+
+  if (isZero())
+    return;
+  Iterator i(j);
+  i++;
+
+  while (i)
+    if (i->divisibility(a.lm())){
+      m2->divide(*i, a.lm());
+      p = new Poly32_64(a);
+      if (i->isHG()){
+        i.del();
+        p->rid_of_lm();
+      }
+      p->mult1(*m2);
+      add(*p); delete p;
+      i=j;
+      i++;
+    }
+    else{
+      i++;
+      j++;
+    }
+}
+
+void Poly32_64::head_reduction(const Poly32_64 &a) {
+  Monom32_64 *m2 = new Monom32_64(monomInterface());
+  Poly32_64 *p;
 
   ConstIterator j(mHead);
   while (j)
     if (j->divisibility(a.lm())){
       m2->divide(*j, a.lm());
-      p = new IMyPoly128(a);
+      p = new Poly32_64(a);
       p->mult(*m2);
       add(*p); delete p;
       j.mConstIt=mHead;
@@ -403,21 +435,11 @@ void IMyPoly128::reduction1(const IMyPoly128 &a) {
       break;
 }
 
-IMyPoly128::ConstIterator IMyPoly128::begin() const {
-  //return ConstIterator(mHead);
-  return mHead;
-}
-
-IMyPoly128::Iterator IMyPoly128::begin() {
-  //return Iterator(mHead);
-  return mHead;
-}
-
-std::ostream& operator<<(std::ostream& out, const IMyPoly128& a) {
+std::ostream& operator<<(std::ostream& out, const Poly32_64& a) {
   if (a.isZero())
     out << '0';
   else {
-    IMyPoly128::ConstIterator i(a.begin());
+    Poly32_64::ConstIterator i(a.begin());
     if ((*i).degree())
       out << *i;
     else
@@ -435,10 +457,10 @@ std::ostream& operator<<(std::ostream& out, const IMyPoly128& a) {
   return out;
 }
 
-void IMyPoly128::additive(std::istream& in) {
+void Poly32_64::additive(std::istream& in) {
   multiplicative(in);
   int op = (in >> std::ws).peek();
-  IMyPoly128 tmp(polyInterface());
+  Poly32_64 tmp(polyInterface());
   while(op == '+' || op == '-') {
     in.get();
     tmp.multiplicative(in);
@@ -447,10 +469,10 @@ void IMyPoly128::additive(std::istream& in) {
   }
 }
 
-void IMyPoly128::multiplicative(std::istream& in) {
+void Poly32_64::multiplicative(std::istream& in) {
   unary(in);
   int op = (in >> std::ws).peek();
-  IMyPoly128 tmp(polyInterface());
+  Poly32_64 tmp(polyInterface());
   while(op == '*') {
     in.get();
     tmp.unary(in);
@@ -459,7 +481,7 @@ void IMyPoly128::multiplicative(std::istream& in) {
   }
 }
 
-void IMyPoly128::unary(std::istream& in) {
+void Poly32_64::unary(std::istream& in) {
   int ch = (in >> std::ws).peek();
   if (ch != '+' && ch != '-')
     power(in);
@@ -475,7 +497,7 @@ void IMyPoly128::unary(std::istream& in) {
   }
 }
 
-void IMyPoly128::power(std::istream& in) {
+void Poly32_64::power(std::istream& in) {
   bracket(in);
   int op = (in >> std::ws).peek();
   if (op == '^') {
@@ -484,11 +506,11 @@ void IMyPoly128::power(std::istream& in) {
     in >> std::ws >> deg;
     if (in.fail() || deg <= 0)
       IMESSAGE("expected 'degree > 0'");
-    pow(deg);
+    //pow(deg);
   }
 }
 
-void IMyPoly128::bracket(std::istream& in) {
+void Poly32_64::bracket(std::istream& in) {
   int op = (in >> std::ws).peek();
   if (op == '(') {
     in.get();
@@ -499,61 +521,40 @@ void IMyPoly128::bracket(std::istream& in) {
   }
   else {
     setOne();
-    IMyMonom128 *m(monomInterface()->create());
-    in >> (*m);
+    Monom32_64 m(monomInterface());
+    in >> m;
     if (!in.fail())
-      mult(*m);
+      mult(m);
     else {
       in.clear();
       if (in.get() != '1') { IMESSAGE("expected 'monomial'"); };
     }
-    delete m;
     //IASSERTVALID(*this);
   }
 }
 
-std::istream& operator>>(std::istream& in, IMyPoly128& a) {
+std::istream& operator>>(std::istream& in, Poly32_64& a) {
   a.additive(in);
   return in;
 }
 
-bool operator==(const IMyPoly128 &a, const IMyPoly128 &b){
+bool operator==(const Poly32_64 &a, const Poly32_64 &b){
   if (a.polyInterface() != b.polyInterface())
     return false;
   if (a.len!=b.len)
     return false;
 
-  IMyPoly128::ConstIterator ia(a.mHead), ib(b.mHead);
+  Poly32_64::ConstIterator ia(a.mHead), ib(b.mHead);
   while (ia && ib){
     if ( *ia != *ib )
       return false;
     ++ia;
     ++ib;
   }
-  if (ia||ib)
-    return false;
   return true;
 }
 
-void IMyPoly128::RawCopy(IMyPoly128 &a){
-  setZero();
-  IMyPoly128 *tmp = polyInterface()->create();
-  int dim = a.polyInterface()->monomInterface()->dimIndepend(),var,len=a.length(),j,k;
-
-  for (j=len-1;j>=0;j--){
-    ConstIterator i(a.mHead);
-    tmp->setOne();
-    for (k=0;k<j;k++) i++;
-
-    for (var=0;var<dim;var++)
-      if ((*i).deg(var))
-        tmp->mult(var);
-
-    add(*tmp);
-  }
-}
-
-void IMyPoly128::assertValid(const char* fileName, int fileLine) const {
+void Poly32_64::assertValid(const char* fileName, int fileLine) const {
   if (mHead) {
     ConstIterator i(mHead);
     IASSERT2(fileName, fileLine, i);

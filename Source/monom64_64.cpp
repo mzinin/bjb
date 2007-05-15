@@ -1,59 +1,52 @@
 #include <cstdarg>
 #include <cmath>
-#include "iutil.h"
-#include "imymonom128.h"
+#include "util.h"
+#include "monom64_64.h"
 
-IMyMonomInterface128::IMyMonomInterface128(IVariables* independ){
+MonomInterface64_64::MonomInterface64_64(Variables* independ){
   mDimIndepend = independ->dim();
   mIndepend = independ;
+  mask0 = 0;
+  mask1 = 0;
+  for (int i=0; i<64; i++){
+    mask0.set(2*i);
+    mask1.set(2*i+1);
+  }
 }
 
-IMyMonomInterface128* IMyMonomInterface128::create(IVariables* independ) {
-  IMyMonomInterface128* r = new IMyMonomInterface128(independ);
-  return r;
+Monom64_64 MonomInterface64_64::create() {
+  return Monom64_64(this);
 }
 
-IMyMonom128* IMyMonomInterface128::create() {
-  return new IMyMonom128(this);
+Monom64_64 MonomInterface64_64::copy(const Monom64_64 &a) {
+  return Monom64_64(a);
 }
 
-IMyMonom128* IMyMonomInterface128::copy(const IMyMonom128 &a) {
-  IMyMonom128* r;
-  if (this == a.monomInterface())
-    r = new IMyMonom128(a);
-
-  return r;
-}
-
-IMyMonom128::IMyMonom128(IMyMonomInterface128* r):
-  mRealization(r),
-  mDimIndepend(r->dimIndepend()),mWord((mDimIndepend-1)/32),exp(),Next(NULL){
+Monom64_64::Monom64_64(MonomInterface64_64* r):
+  mRealization(r),mDimIndepend(r->dimIndepend()),exp(),Next(NULL){
       IASSERT(mRealization);
       total_degree = 0;
   }
 
-IMyMonom128::IMyMonom128(const IMyMonom128& a):
-  mRealization(a.mRealization),
-  mDimIndepend(a.mDimIndepend),mWord((mDimIndepend-1)/32),exp(),Next(NULL){
+Monom64_64::Monom64_64(const Monom64_64& a):
+  mRealization(a.mRealization),mDimIndepend(a.mDimIndepend),exp(),Next(NULL){
     total_degree = a.total_degree;
     exp = a.exp;
   }
 
-IMyMonom128* IMyMonom128::copy(){
-  IMyMonom128* r = new IMyMonom128(mRealization);
-  r->total_degree = total_degree;
-  r->exp = exp;
+Monom64_64 Monom64_64::copy(){
+  Monom64_64 r = Monom64_64(mRealization);
+  r.total_degree = total_degree;
+  r.exp = exp;
   return r;
 }
 
-void IMyMonom128::set(const IMyMonom128& a) {
-  if (monomInterface() == a.monomInterface()) {
-    total_degree = a.total_degree;
-    exp = a.exp;
-  }
+void Monom64_64::set(const Monom64_64& a) {
+  total_degree = a.total_degree;
+  exp = a.exp;
 }
 
-void IMyMonom128::swap(IMyMonom128& a) {
+void Monom64_64::swap(Monom64_64& a) {
   unsigned t;
   t = total_degree;
   total_degree = a.total_degree;
@@ -64,33 +57,31 @@ void IMyMonom128::swap(IMyMonom128& a) {
   a.exp = d;
 }
 
-void IMyMonom128::prolong(int var, unsigned deg) {
-  if (deg>0) prolong(var);
-}
-
-void IMyMonom128::div(int var) {
-  if ( exp.test(var) ){
-    exp.reset(var);
+void Monom64_64::div(int var) {
+  if ( exp.test(2*var) || exp.test(2*var+1) ){
+    unsigned long t = 1, *exp_long;
+    if (var<32){
+      t = t << 2*var;
+      exp_long = (unsigned long*)&exp;
+    }
+    else{
+      t = t << 2*(var-32);
+      exp_long = (unsigned long*)&exp + 1;
+    }
+    *exp_long -= t;
     total_degree--;
   }
   else
    IERROR("Monom can't be divided by variable");
 }
 
-bool IMyMonom128::equality(const IMyMonom128& a, int var, unsigned degree) const {
-  bitset<128> d=1;
-  d=d<<var;
-  d|=a.exp;
-  return exp==d;
-}
-
-int IMyMonom128::compare(const IMyMonom128& a, const IMyMonom128& b) const {
-  IMyMonom128 tmp(a);
+int Monom64_64::compare(const Monom64_64& a, const Monom64_64& b) const {
+  Monom64_64 tmp(a);
   tmp.mult(b);
   return compare(tmp);
 }
 
-std::istream& operator>>(std::istream& in, IMyMonom128& a) {
+std::istream& operator>>(std::istream& in, Monom64_64& a) {
   std::streampos posbeg = in.tellg();
   int var = a.independ()->read(in);
   if (var < 0) {
@@ -132,12 +123,12 @@ std::istream& operator>>(std::istream& in, IMyMonom128& a) {
   return in;
 }
 
-std::ostream& operator<<(std::ostream& out, const IMyMonom128& a) {
+std::ostream& operator<<(std::ostream& out, const Monom64_64& a) {
   if (a.degree() == 0)
     out << '1';
   else {
     int i = 0;
-    IVariables::ConstIterator j(a.independ()->begin());
+    Variables::ConstIterator j(a.independ()->begin());
     while(a.deg(i) == 0) {
       ++i;
       ++j;

@@ -1,19 +1,19 @@
-#include "janettree128.h"
+#include "janettree64_64.h"
 
-void JanetTree128::Iterator::del() {
+void JanetTree64_64::Iterator::del() {
   Node* tmp = *i;
   *i = tmp->mNextDeg;
   delete tmp;
 }
 
-void JanetTree128::Iterator::build(int d, int var, Triple128 *trpl) {
+void JanetTree64_64::Iterator::build(int d, int var, Triple64_64 *trpl) {
   //IASSERT(d >= trpl->poly->lm()[var]);
-  Node* r =  new JanetTree128::Node(trpl->poly->lm()[var]);
+  Node* r =  new JanetTree64_64::Node(trpl->poly->lm()[var]);
   Node* j = r;
   while(d > trpl->poly->lm()[var]) {
     d -= trpl->poly->lm()[var];
     var++;
-    j->mNextVar = new JanetTree128::Node(trpl->poly->lm()[var]);
+    j->mNextVar = new JanetTree64_64::Node(trpl->poly->lm()[var]);
     j = j->mNextVar;
   }
   j->mTriple = trpl;
@@ -23,22 +23,22 @@ void JanetTree128::Iterator::build(int d, int var, Triple128 *trpl) {
   *i = r;
 }
 
-void JanetTree128::Iterator::clear() {
+void JanetTree64_64::Iterator::clear() {
   while (nextDeg()) {
     //IASSERT(nextVar());
-    JanetTree128::Iterator((*i)->mNextVar).clear();
+    JanetTree64_64::Iterator((*i)->mNextVar).clear();
     del();
   }
   del();
 }
 
-JanetTree128::~JanetTree128() {
+JanetTree64_64::~JanetTree64_64() {
   clear();
   delete mRoot;
 }
 
-Triple128* JanetTree128::find(const IMyMonom128& m) const {
-  Triple128* trpl = NULL;
+Triple64_64* JanetTree64_64::find(const Monom64_64& m) const {
+  Triple64_64* trpl = NULL;
 
   if (mRoot) {
     ConstIterator j(mRoot);
@@ -67,7 +67,7 @@ Triple128* JanetTree128::find(const IMyMonom128& m) const {
   return trpl;
 }
 
-void JanetTree128::del(Triple128 *trpl) {
+void JanetTree64_64::del(Triple64_64 *trpl) {
   //IASSERT(find(trpl->poly->lm()) != NULL);
   Iterator j(mRoot);
   //подсчет ветвлений
@@ -94,8 +94,8 @@ void JanetTree128::del(Triple128 *trpl) {
 
   //собственно удаление
   j = mRoot;
-  var=0;
-  bool varDirection=false;
+  var = 0;
+  bool varDirection = false;
 
   if (j.isNextDeg() && j.isNextVar()) vet--;
   if (vet==0)
@@ -144,12 +144,11 @@ void JanetTree128::del(Triple128 *trpl) {
   //IASSERT(find(trpl->poly->lm()) != trpl);
 }
 
-void JanetTree128::insert(Triple128* trpl) {
+void JanetTree64_64::insert(Triple64_64* trpl) {
   //IASSERT(trpl != NULL);
   //IASSERT(find(trpl->poly->lm()) == NULL);
-
   unsigned d = trpl->poly->lm().degree();
-  JanetTree128::Iterator j(mRoot);
+  Iterator j(mRoot);
   if (mRoot == NULL)
     j.build(d, 0, trpl);
   else {
@@ -177,11 +176,10 @@ void JanetTree128::insert(Triple128* trpl) {
   //IASSERT(find(trpl->poly->lm()) != NULL);
 }
 
-void JanetTree128::update(Triple128 *trpl, vector<Triple128*> &set) {
+void JanetTree64_64::update(Triple64_64 *trpl, vector<Triple64_64*> &set) {
   //IASSERT(trpl != NULL); IASSERT(trpl->poly != NULL);
   //IASSERT(find(trpl->poly->lm()) == trpl);
-
-  JanetTree128::ConstIterator j(mRoot);
+  ConstIterator j(mRoot);
   int var = 0;
   do {
     while(j.degree() < trpl->poly->lm()[var]) {
@@ -192,9 +190,19 @@ void JanetTree128::update(Triple128 *trpl, vector<Triple128*> &set) {
 
     if (j.isNextDeg()){
       if (!trpl->nmp.test(var)){
-        IMyPoly128* tmp = trpl->poly->polyInterface()->copy(*trpl->poly);
-        tmp->mult(var);
-        set.push_back(new Triple128(tmp, trpl->anc, trpl, 0, true));
+        Poly64_64* tmp = new Poly64_64(*trpl->poly);
+        if (trpl->poly->lm().isHG()){
+          tmp->mult(var);
+          set.push_back(new Triple64_64(tmp, trpl->anc, trpl, 0, true));
+        }
+        else{
+          tmp->mult1(var);
+          if (!tmp->isZero())
+            if ( tmp->lm().equality(trpl->poly->lm(),var) )
+              set.push_back(new Triple64_64(tmp, trpl->anc, trpl, 0, true));
+            else
+              set.push_back(new Triple64_64(tmp, tmp->lm(), trpl, 0, false));
+        }
         trpl->nmp.set(var);
       }
     }
@@ -214,19 +222,19 @@ void JanetTree128::update(Triple128 *trpl, vector<Triple128*> &set) {
     trpl->nmp.reset(i);
 }
 
-void JanetTree128::clear() {
+void JanetTree64_64::clear() {
   if (mRoot) {
-    JanetTree128::Iterator j(mRoot);
+    Iterator j(mRoot);
     j.clear();
   }
 }
 
-bitset<128> JanetTree128::nmulti(Triple128 *trpl){
+bitset<64> JanetTree64_64::nmulti(Triple64_64 *trpl){
   IASSERT(trpl->poly != NULL);
   IASSERT(find(trpl->poly->lm()) == trpl);
 
-  JanetTree128::ConstIterator j(mRoot);
-  bitset<128> out = 0;
+  ConstIterator j(mRoot);
+  bitset<64> out = 0;
   int var = 0;
   do {
     while(j.degree() < trpl->poly->lm()[var])

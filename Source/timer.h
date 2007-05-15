@@ -18,53 +18,38 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "./itimer.h"
-#include <sys/time.h>
-#include <unistd.h>
+#ifndef TIMER_H
+#define TIMER_H
 
-void ITimer::start() {
-  times(&mBuffer);
+#include <iostream>
+#include <iomanip>
+#include <sys/times.h>
 
-  mUser = ITimer::mBuffer.tms_utime;
-  mSys  = ITimer::mBuffer.tms_stime;
+class Timer {
+  static double mHZ;        //  Number of ticks per second
+  static tms    mBuffer;
 
-  mTimeUser = 0;
-  mTimeSys  = 0;
-}
+  clock_t       mUser;
+  clock_t       mSys;
+  clock_t       mTimeUser;
+  clock_t       mTimeSys;
 
-void ITimer::stop() {
-  times(&mBuffer);
+public:
+  Timer(): mUser(0), mSys(0), mTimeUser(0), mTimeSys(0) {}
+  ~Timer() {}
 
-  mTimeUser += ITimer::mBuffer.tms_utime - mUser;
-  mTimeSys  += ITimer::mBuffer.tms_stime - mSys;
-}
+  void start();
+  void stop();
+  void ignore();
+  void cont();
 
-void ITimer::ignore() {
-}
+  double userTime() const { return mTimeUser / mHZ; }
+  double sysTime() const { return mTimeSys / mHZ; }
+  double realTime() const { return (mTimeUser + mTimeSys) / mHZ; }
 
-void ITimer::cont() {
-  times(&mBuffer);
+  void operator= (const Timer &a);
 
-  mUser = ITimer::mBuffer.tms_utime;
-  mSys  = ITimer::mBuffer.tms_stime;
-}
+  friend std::ostream& operator<<(std::ostream& out, const Timer &a);
+};
 
-void ITimer::operator = (const ITimer & a) {
-  mUser = a.mUser;
-  mSys = a.mSys;
-  mTimeUser = a.mTimeUser;
-  mTimeSys = a.mTimeSys;
-}
-
-tms ITimer::mBuffer;
-double ITimer::mHZ = double(sysconf(_SC_CLK_TCK));
-
-std::ostream& operator<<(std::ostream& out, const ITimer &a) {
-  std::ios::fmtflags flags = out.flags();
-  out.flags(flags | std::ios::fixed);
-  out << "  user mTime: " << std::setprecision(2) << a.userTime() << " sec" << std::endl;
-  out << "system mTime: " << std::setprecision(2) << a.sysTime()  << " sec" << std::endl;
-  out << "  real mTime: " << std::setprecision(2) << a.realTime() << " sec" << std::endl;
-  out.flags(flags);
-  return out;
-}
+#endif // ITIMER_H

@@ -1,18 +1,18 @@
 #include <iostream>
 #include <fstream>
-#include "itimer.h"
-#include "igroebner128.h"
+#include "timer.h"
+#include "involutive64_64.h"
 
 using namespace std;
 
-void init128(char* filename){
+void init64_64(char* filename){
   ifstream fin(filename);
-  ITimer timer;
+  Timer timer;
 
-  IVariables vars;
+  Variables vars;
   //-----чтение переменных
   int i=0;
-  char s[161840],c='0';
+  char s[524288],c='0';
   while ( c!=';' ){
   	fin>>c;
 	if (c==',' || c==';') {
@@ -28,12 +28,12 @@ void init128(char* filename){
   }
   //-----конец чтения переменных
 
-  IMyMonomInterface128 mInterface = IMyMonomInterface128(&vars);
-  IMyPolyInterface128 *pInterface = IMyPolyInterface128::create(&mInterface);
+  MonomInterface64_64 mInterface = MonomInterface64_64(&vars);
+  PolyInterface64_64 pInterface = PolyInterface64_64(&mInterface);
 
-  IMyPoly128 *poly = pInterface->create();
-  vector<IMyPoly128*> pl, answer;
-  vector<IMyPoly128*>::iterator it(pl.begin()), an_it(answer.begin());
+  Poly64_64 *poly = new Poly64_64(&pInterface);
+  vector<Poly64_64*> pl, answer;
+  vector<Poly64_64*>::iterator it(pl.begin()), an_it(answer.begin());
 
   i=0;
   s[0]='\0';
@@ -54,7 +54,7 @@ void init128(char* filename){
   tmp_in.open("tmp1");
   while (!tmp_in.eof()){
     tmp_in>>*poly;
-    it=pl.insert(it, pInterface->copy(*poly));
+    it=pl.insert(it, new Poly64_64(*poly));
   }
   tmp_in.close();
   //-----конец чтения начального набора
@@ -76,21 +76,21 @@ void init128(char* filename){
   tmp_in2.open("tmp2");
   while (!tmp_in2.eof()){
     tmp_in2>>*poly;
-    an_it=answer.insert(an_it, pInterface->copy(*poly));
+    an_it=answer.insert(an_it, new Poly64_64(*poly));
   }
   tmp_in2.close();
   //-----конец чтения ответа
   fin.close();
 
   timer.start();
-  IGBasis128 bg(pl);
+  GBasis64_64 bg(pl);
   timer.stop();
   //cout<<bg<<endl;
   cout<<timer<<endl;
 
   bool Is_Correct=true,Found;
   //-----проверка
-  if (bg.length()<answer.size())
+  if (bg.length()!=answer.size())
     Is_Correct=false;
   else{
     an_it=answer.begin();
@@ -105,7 +105,7 @@ void init128(char* filename){
       if (!Found)	{
         Is_Correct=false;
 	cout<<"The mistake is here "<<**an_it<<endl;
-        break;
+        //break;
       }
       ++an_it;
     }
@@ -115,7 +115,6 @@ void init128(char* filename){
     cout<<"The answer is CORRECT"<<endl;
   else
     cout<<"The answer is WRONG"<<endl;
-
 
   return;
 }

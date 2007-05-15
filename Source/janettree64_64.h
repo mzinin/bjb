@@ -1,31 +1,31 @@
 #include <iostream>
-#include "imypoly128.h"
+#include "poly64_64.h"
 
 using namespace std;
 
-struct Triple128 {
-  IMyPoly128*  poly;
-  IMyMonom128  anc;
-  Triple128*   wanc;
-  bitset<128> nmp;
+struct Triple64_64 {
+  Poly64_64*  poly;
+  Monom64_64  anc;
+  Triple64_64*   wanc;
+  bitset<64> nmp;
   bool prolong;
 
-  Triple128(IMyPoly128 *p, const IMyMonom128 &m, Triple128* w):
+  Triple64_64(Poly64_64 *p, const Monom64_64 &m, Triple64_64* w):
            poly(p), anc(m), wanc(w), nmp(), prolong(true) {}
-  Triple128(IMyPoly128 *p, const IMyMonom128 &m, Triple128* w, bitset<128> &n, bool pr):
+  Triple64_64(Poly64_64 *p, const Monom64_64 &m, Triple64_64* w, bitset<64> &n, bool pr):
            poly(p), anc(m), wanc(w), nmp(n), prolong(pr) {}
-  Triple128(IMyPoly128 *p, const IMyMonom128 &m, Triple128* w, int n, bool pr):
+  Triple64_64(Poly64_64 *p, const Monom64_64 &m, Triple64_64* w, int n, bool pr):
            poly(p), anc(m), wanc(w), nmp(n), prolong(pr) {}
-  ~Triple128() {delete poly;}
+  ~Triple64_64() {delete poly;}
 };
 
-class JanetTree128 {
+class JanetTree64_64 {
 public:
   struct Node {
-    int      mDeg;
-    Triple128*  mTriple;
-    Node*    mNextDeg;
-    Node*    mNextVar;
+    int           mDeg;
+    Triple64_64*  mTriple;
+    Node*         mNextDeg;
+    Node*         mNextVar;
 
     Node(int deg): mDeg(deg), mTriple(NULL), mNextDeg(NULL), mNextVar(NULL) {}
     ~Node() {}
@@ -45,7 +45,7 @@ private:
     ConstIterator nextVar() const { return i->mNextVar; }
     bool isNextDeg() const { return i->mNextDeg; }
     bool isNextVar() const { return i->mNextVar; }
-    Triple128* trpl() const { return i->mTriple; }
+    Triple64_64* trpl() const { return i->mTriple; }
     unsigned degree() const { return i->mDeg; }
   };
 
@@ -63,9 +63,9 @@ private:
     bool isNextDeg() const { return (*i)->mNextDeg; }
     bool isNextVar() const { return (*i)->mNextVar; }
     operator ConstIterator() const { return *i; }
-    Triple128*& trpl() const { return (*i)->mTriple; }
+    Triple64_64*& trpl() const { return (*i)->mTriple; }
     unsigned degree() const { return (*i)->mDeg; }
-    void build(int d, int var, Triple128 *trpl);
+    void build(int d, int var, Triple64_64 *trpl);
     void del();
     void exclude();
     void clear();
@@ -74,13 +74,13 @@ private:
   Node* mRoot;
 
 public:
-  JanetTree128(): mRoot(NULL) {};
-  ~JanetTree128();
+  JanetTree64_64(): mRoot(NULL) {};
+  ~JanetTree64_64();
 
-  Triple128* find(const IMyMonom128& m) const;
-  void insert(Triple128 *trpl);
-  void del(Triple128 *trpl);
-  void update(Triple128 *trpl, vector<Triple128*> &set);
+  Triple64_64* find(const Monom64_64& m) const;
+  void insert(Triple64_64 *trpl);
+  void del(Triple64_64 *trpl);
+  void update(Triple64_64 *trpl, vector<Triple64_64*> &set);
   void clear();
-  bitset<128> nmulti(Triple128 *trpl);
+  bitset<64> nmulti(Triple64_64 *trpl);
 };

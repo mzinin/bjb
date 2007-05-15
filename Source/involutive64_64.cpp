@@ -1,25 +1,31 @@
 #include <iostream>
-#include "igroebner128.h"
-#include "itimer.h"
+#include "involutive64_64.h"
+#include "timer.h"
 
 using namespace std;
 
-extern int crit;
-//ITimer timer_crit, timer_zero_reduce, timer_non_zero_reduce, timer_select;
+void showlm(vector<Triple64_64*> set){
+  vector<Triple64_64*>::const_iterator i(set.begin());
+  while (i!=set.end()){
+    cout<<'('<<(*i)->poly->lm()<<','<<(*i)->anc<<")  ";
+    i++;
+  }
+  cout<<endl<<endl;
+}
 
-bool Criteria1(Triple128 &p, Triple128 &g){
-  IMyMonom128 tmp = p.anc;
-  tmp.mult1(g.anc);
+bool Criteria1(Triple64_64 &p, Triple64_64 &g){
+  Monom64_64 tmp = p.anc;
+  tmp.mult(g.anc);
 
-  if ( !p.anc.gcd(g.anc) && p.poly->lm()==tmp)
+  if (p.poly->lm()==tmp)
     return true;
   else
     return false;
 }
 
-bool Criteria2(Triple128 &p, Triple128 &g){
-  IMyMonom128 tmp = p.anc;
-  tmp.mult1(g.anc);
+bool Criteria2(Triple64_64 &p, Triple64_64 &g){
+  Monom64_64 tmp = p.anc;
+  tmp.mult(g.anc);
 
   if ( p.poly->lm().divisibilityTrue(tmp) )
     return true;
@@ -27,14 +33,14 @@ bool Criteria2(Triple128 &p, Triple128 &g){
     return false;
 }
 
-bool Criteria3(Triple128 &p, Triple128 &g, vector<Triple128*> &T){
-  IMyMonom128  m = p.anc, mp = p.anc, mg = g.anc;
-  m.mult1(g.anc);
+bool Criteria3(Triple64_64 &p, Triple64_64 &g, vector<Triple64_64*> &T){
+  Monom64_64  m = p.anc, mp = p.anc, mg = g.anc;
+  m.mult(g.anc);
 
-  vector<Triple128*>::const_iterator ctit(T.begin());
+  vector<Triple64_64*>::const_iterator ctit(T.begin());
   while(ctit!=T.end()){
-    mp = p.anc; mp.mult1((**ctit).poly->lm());
-    mg = g.anc; mg.mult1((**ctit).poly->lm());
+    mp = p.anc; mp.mult((**ctit).poly->lm());
+    mg = g.anc; mg.mult((**ctit).poly->lm());
     if( m.divisibilityTrue(mp) && m.divisibilityTrue(mg) )
       return true;
     ctit++;
@@ -43,20 +49,20 @@ bool Criteria3(Triple128 &p, Triple128 &g, vector<Triple128*> &T){
   return false;
 }
 
-bool Criteria4(Triple128 &p, Triple128 &g, vector<Triple128*> &T, JanetTree128 &JT){
-  vector<Triple128*>::const_iterator ctit(T.begin());
+bool Criteria4(Triple64_64 &p, Triple64_64 &g, vector<Triple64_64*> &T, JanetTree64_64 &JT){
+  vector<Triple64_64*>::const_iterator ctit(T.begin());
   int dim = p.anc.dimIndepend();
-  bitset<128> nm;
+  bitset<64> nm;
 
   while (p.wanc!=*ctit && ctit!=T.end())
     if ((**ctit).poly->degree() != p.poly->degree()-1)
       ctit++;
     else{
-      IMyMonom128 tmp1 = p.anc; tmp1.mult((**ctit).anc);
+      Monom64_64 tmp1 = p.anc; tmp1.mult((**ctit).anc);
       nm = JT.nmulti(*ctit);
       for (int i=0; i<dim; i++)
         if (nm.test(i)){
-          IMyMonom128 tmp2 = (**ctit).poly->lm();
+          Monom64_64 tmp2 = (**ctit).poly->lm();
           tmp2.prolong(i);
           if (tmp2==p.poly->lm())
             if (tmp2.divisibilityTrue(tmp1))
@@ -68,28 +74,26 @@ bool Criteria4(Triple128 &p, Triple128 &g, vector<Triple128*> &T, JanetTree128 &
   return false;
 }
 
-IMyPoly128* IGBasis128::NormalForm(Triple128 &p){
-  IMyPoly128 *h,*q;
-  Triple128  *inv_div;
-  q = p.poly->polyInterface()->create();
+Poly64_64* GBasis64_64::NormalForm(Triple64_64 &p){
+  Poly64_64 *h,*q;
+  Triple64_64  *inv_div;
+  q = new Poly64_64(pInterface_local);
   q->setZero();
-  h = p.poly->polyInterface()->copy(*p.poly);
+  if (!p.poly) return q;
+  h = new Poly64_64(*p.poly);
+  if (tSet.empty()) {delete q; return h;}
 
   inv_div = jTree.find(h->lm());
+
   if (p.prolong && inv_div){
-    //timer_crit.cont();
     bool c = Criteria1(p, *inv_div) || Criteria2(p, *inv_div) || Criteria3(p, *inv_div, tSet)
              || Criteria4(p, *inv_div, tSet, jTree);
-    //timer_crit.stop();
     if (c){
-      //crit++;
       delete h;
       return q;
     }
   }
 
-  //timer_zero_reduce.cont();
-  //timer_non_zero_reduce.cont();
   while (!h->isZero()){
     inv_div = jTree.find(h->lm());
     while (inv_div){
@@ -105,26 +109,21 @@ IMyPoly128* IGBasis128::NormalForm(Triple128 &p){
     }
   }
 
-  //if (q->isZero())
-  //  timer_zero_reduce.stop();
-  //else
-  //  timer_non_zero_reduce.stop();
-
   delete h;
   return q;
 }
 
-bool Compare_Triple(Triple128* a, Triple128* b){
+bool Compare_Triple(Triple64_64* a, Triple64_64* b){
   if (a->poly->lm().compare(b->poly->lm())==-1)
     return true;
   else
     return false;
 }
 
-IMyPoly128* findR(IMyPoly128& p, vector<IMyPoly128*> &Q){
+Poly64_64* findR(Poly64_64& p, vector<Poly64_64*> &Q){
   if (p.isZero()) return NULL;
-  vector<IMyPoly128*>::const_iterator iq(Q.begin()), q_end(Q.end());
-  IMyMonom128 *plm = (IMyMonom128*)&p.lm();
+  vector<Poly64_64*>::const_iterator iq(Q.begin()), q_end(Q.end());
+  Monom64_64 *plm = (Monom64_64*)&p.lm();
 
   while (iq!=q_end){
     if ( plm->divisibility((**iq).lm()) )
@@ -135,19 +134,18 @@ IMyPoly128* findR(IMyPoly128& p, vector<IMyPoly128*> &Q){
   return NULL;
 }
 
-IMyPoly128* Reduce(IMyPoly128 &p, vector<IMyPoly128*> &Q){
-  IMyPoly128 *r,*q;
-  IMyPoly128 *red;
-  q = p.polyInterface()->create();
+Poly64_64* Reduce(Poly64_64 &p, vector<Poly64_64*> &Q){
+  Poly64_64 *r,*q, *red;
+  q = new Poly64_64(p.polyInterface());
   q->setZero();
-  r = p.polyInterface()->copy(p);
-  vector<IMyPoly128*> rrq;
-  vector<IMyPoly128*>::iterator it;
+  r = new Poly64_64(p);
+  vector<Poly64_64*> rrq;
+  vector<Poly64_64*>::iterator it;
 
   while (!r->isZero()){
     red = findR(*r,Q);
     while (red){
-      r->reduction(*red);
+      r->reduction1(*red);
       red = findR(*r,Q);
     }
     if (!r->isZero()){
@@ -160,20 +158,20 @@ IMyPoly128* Reduce(IMyPoly128 &p, vector<IMyPoly128*> &Q){
   return q;
 }
 
-IGBasis128::IGBasis128():
+GBasis64_64::GBasis64_64():
   gBasis(), qSet(), tSet(), jTree(), vars(), mInterface_local(NULL), pInterface_local(NULL) {}
 
-void IGBasis128::ReduceSet(vector<IMyPoly128*> &set, int i) {
-  vector<IMyPoly128*> R,P,Q;
-  vector<IMyPoly128*>::iterator ir(R.begin()), ip(P.begin()), iq(Q.begin());
-  vector<IMyPoly128*>::const_iterator j(set.begin()), q_end, r_end, p_end;
-  IMyPoly128 *h,*h1;
-  if (i)
-    while (j!=set.end()){
-      ir=R.insert(ir,*j);
-      ++j;
-    }
-  else
+void GBasis64_64::ReduceSet(vector<Poly64_64*> &set/*, int i*/) {
+  vector<Poly64_64*> R,P,Q;
+  vector<Poly64_64*>::iterator ir(R.begin()), ip(P.begin()), iq(Q.begin());
+  vector<Poly64_64*>::const_iterator j(set.begin()), q_end, r_end, p_end;
+  Poly64_64 *h,*h1;
+//  if (i)
+//    while (j!=set.end()){
+//      ir=R.insert(ir,*j);
+//      ++j;
+//    }
+//  else*/
     R = set;
 
   int num;
@@ -184,8 +182,8 @@ void IGBasis128::ReduceSet(vector<IMyPoly128*> &set, int i) {
     ir = R.erase(ir);
     h = Reduce(*h,P);
     if (!h->isZero()){
-      //Q
-      IMyMonom128 *hlm=(IMyMonom128*)&h->lm();
+      //Q - ? не помню старый комментарий
+      Monom64_64 *hlm=(Monom64_64*)&h->lm();
       ip = P.begin();
       p_end = P.end();
       while (ip!=p_end){
@@ -219,8 +217,8 @@ void IGBasis128::ReduceSet(vector<IMyPoly128*> &set, int i) {
     }
   }
 
-  R.clear();
-  Q.clear();
+  R.clear(); //не помню
+  Q.clear(); //вместо S из книги
   ir = R.begin();
   iq = Q.begin();
   ip = P.begin();
@@ -245,43 +243,32 @@ void IGBasis128::ReduceSet(vector<IMyPoly128*> &set, int i) {
   set = R;
 }
 
-void IGBasis128::InvolutiveBasisI(){
-  vector<Triple128*>::iterator qit(qSet.begin()), tit(tSet.begin());
-  IMyPoly128* h;
-  //int zero_red=0, nonzero_red=0;
-
-  //timer_select.start();
-  qit = min_element(qSet.begin(), qSet.end(), Compare_Triple);
-  //timer_select.stop();
-  tit = tSet.insert(tit, *qit);
-  jTree.insert(*qit);
-  qit = qSet.erase(qit);
-
+void GBasis64_64::InvolutiveBasis(){
+  vector<Triple64_64*>::iterator qit(qSet.begin()), tit(tSet.begin());
+  Poly64_64* h;
   bool lm_changed;
 
   while (!qSet.empty()){
-    //timer_select.cont();
+    //showlm(tSet);showlm(qSet);cout<<endl;
     qit = min_element(qSet.begin(), qSet.end(), Compare_Triple);
-    //timer_select.stop();
     h = NormalForm(**qit);
-
     if (!h->isZero() && h->lm()==(**qit).poly->lm())
       lm_changed = false;
     else
       lm_changed = true;
-    bitset<128> n = (**qit).nmp;
-    IMyMonom128 qanc = (**qit).anc;
+    bitset<64> n = (**qit).nmp;
+    Monom64_64 qanc = (**qit).anc;
 
     delete *qit;
     qit = qSet.erase(qit);
 
     if (!h->isZero()){
-      //nonzero_red++;
       tit = tSet.begin();
       while (tit!=tSet.end())
         if ((*tit)->poly->lm().divisibilityTrue(h->lm())){
+        //if ((*tit)->poly->lm().compare(h->lm())==1){
           qit = qSet.begin();
-          IMyMonom128 tlm = (**tit).poly->lm();
+          Monom64_64 tlm = (**tit).poly->lm();
           while (qit!=qSet.end())
             if ((**qit).anc == tlm){
               delete *qit;
@@ -289,96 +276,100 @@ void IGBasis128::InvolutiveBasisI(){
             }
             else
               qit++;
+
           qSet.push_back(*tit);
           jTree.del(*tit);
           tit = tSet.erase(tit);
         }
         else
-          tit++;;
+          tit++;
 
       if (lm_changed)
-        tSet.push_back(new Triple128(h,h->lm(),NULL,0,false));
+        tSet.push_back(new Triple64_64(h,h->lm(),NULL,0,false));
       else
-        tSet.push_back(new Triple128(h,qanc,NULL,n,false));
+        tSet.push_back(new Triple64_64(h,qanc,NULL,n,false));
       tit = tSet.end();
       tit--;
       jTree.insert(*tit);
-
       while (tit!=tSet.begin()){
+        if (!(**tit).poly->isBinomial())
         jTree.update(*tit, qSet);
         tit--;
       }
       jTree.update(*tit, qSet);
     }
-    else{
-      //zero_red++;
+    else
       delete h;
-    }
   }
 
-  //cout<<"Polynoms considered: "<<zero_red+nonzero_red<<endl;
-  //cout<<"Zero reductions: "<<zero_red<<endl;
-  //cout<<"Criterion refused: "<<crit<<endl;
-  //cout<<"Non-zero reductions: "<<nonzero_red<<endl;
   jTree.clear();
 }
 
-IGBasis128::IGBasis128(vector<IMyPoly128*> set):
+GBasis64_64::GBasis64_64(vector<Poly64_64*> set):
   gBasis(), qSet(), tSet(), jTree(), vars(), mInterface_local(NULL), pInterface_local(NULL) {
 
-  vector<IMyPoly128*>::const_iterator i1(set.begin());
-  vector<IMyPoly128*>::iterator i2(gBasis.begin());
+  vector<Poly64_64*>::const_iterator i1(set.begin());
+  vector<Poly64_64*>::iterator i2(gBasis.begin());
 
   mInterface_local = (**i1).monomInterface();
   pInterface_local = (**i1).polyInterface();
-  int dim = mInterface_local->dimIndepend(),i;
+  Dim = mInterface_local->dimIndepend();
+  int i;
 
   while (i1!=set.end()){
-    i2=gBasis.insert(i2, pInterface_local->copy(**i1));
-    for (i = 0; i < dim; i++){
-      i2=gBasis.insert(i2, pInterface_local->copy(**i1));
-      (**i2).mult(i);
+    i2=gBasis.insert(i2, new Poly64_64(**i1));
+    for (i = 0; i < Dim; i++){
+      i2=gBasis.insert(i2, new Poly64_64(**i1));
+      (**i2).mult1(i);
     }
     ++i1;
   }
 
-  ReduceSet(gBasis,1);
-  //cout<<endl;
+  ReduceSet(gBasis);
+
+  for (i=0; i<Dim; i++){
+    Poly64_64 *bin = new Poly64_64(pInterface_local);
+    bin->setOne();
+    bin->mult(i,2);
+    Poly64_64 *tbin = new Poly64_64(pInterface_local);
+    tbin->setOne();
+    tbin->mult(i,1);
+    bin->add(*tbin);
+    delete tbin;
+    i2 = gBasis.insert(i2, bin);
+  }
 
   i2 = gBasis.begin();
   while (i2!=gBasis.end()){
-    qSet.push_back(new Triple128(*i2,(*i2)->lm(),NULL,0,false));
+    qSet.push_back(new Triple64_64(*i2,(*i2)->lm(),NULL,0,false));
     i2++;
   }
   gBasis.clear();
 
-  InvolutiveBasisI();
+  InvolutiveBasis();
 
-  vector<Triple128*>::const_iterator i3(tSet.begin());
+  vector<Triple64_64*>::const_iterator i3(tSet.begin());
   while(i3!=tSet.end()){
-    gBasis.push_back((*i3)->poly);
+    if ((*i3)->poly->lm()==(*i3)->anc && !(*i3)->poly->isBinomial())
+      gBasis.push_back((*i3)->poly);
     i3++;
   }
   tSet.clear();
 
-  ReduceSet(gBasis,0);
-  //cout<<"Criterion's time: "<<endl<<timer_crit<<endl;
-  //cout<<"Zero reduction time: "<<endl<<timer_zero_reduce<<endl;
-  //cout<<"Nonzero reduction time: "<<endl<<timer_non_zero_reduce<<endl;
-  //cout<<"Selection time: "<<endl<<timer_select<<endl;
+  ReduceSet(gBasis);
 }
 
-IMyPoly128* IGBasis128::operator[](int num){
-  vector<IMyPoly128*>::const_iterator it(gBasis.begin());
+Poly64_64* GBasis64_64::operator[](int num){
+  vector<Poly64_64*>::const_iterator it(gBasis.begin());
   it+=length()-1-num;
   return *it;
 }
 
-int IGBasis128::length(){
+int GBasis64_64::length(){
   return gBasis.size();
 }
 
-std::ostream& operator<<(std::ostream& out, IGBasis128& GBasis) {
+std::ostream& operator<<(std::ostream& out, GBasis64_64& GBasis) {
   int i=0;
   for (i=0;i<GBasis.length();i++)
     out<<'['<<i<<"] = "<<*GBasis[i]<<'\n';

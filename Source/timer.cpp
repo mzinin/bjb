@@ -18,38 +18,53 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef ITIMER_H
-#define ITIMER_H
+#include "./timer.h"
+#include <sys/time.h>
+#include <unistd.h>
 
-#include <iostream>
-#include <iomanip>
-#include <sys/times.h>
+void Timer::start() {
+  times(&mBuffer);
 
-class ITimer {
-  static double mHZ;        //  Number of ticks per second
-  static tms    mBuffer;
+  mUser = Timer::mBuffer.tms_utime;
+  mSys  = Timer::mBuffer.tms_stime;
 
-  clock_t       mUser;
-  clock_t       mSys;
-  clock_t       mTimeUser;
-  clock_t       mTimeSys;
+  mTimeUser = 0;
+  mTimeSys  = 0;
+}
 
-public:
-  ITimer(): mUser(0), mSys(0), mTimeUser(0), mTimeSys(0) {}
-  ~ITimer() {}
+void Timer::stop() {
+  times(&mBuffer);
 
-  void start();
-  void stop();
-  void ignore();
-  void cont();
+  mTimeUser += Timer::mBuffer.tms_utime - mUser;
+  mTimeSys  += Timer::mBuffer.tms_stime - mSys;
+}
 
-  double userTime() const { return mTimeUser / mHZ; }
-  double sysTime() const { return mTimeSys / mHZ; }
-  double realTime() const { return (mTimeUser + mTimeSys) / mHZ; }
+void Timer::ignore() {
+}
 
-  void operator= (const ITimer &a);
+void Timer::cont() {
+  times(&mBuffer);
 
-  friend std::ostream& operator<<(std::ostream& out, const ITimer &a);
-};
+  mUser = Timer::mBuffer.tms_utime;
+  mSys  = Timer::mBuffer.tms_stime;
+}
 
-#endif // ITIMER_H
+void Timer::operator = (const Timer & a) {
+  mUser = a.mUser;
+  mSys = a.mSys;
+  mTimeUser = a.mTimeUser;
+  mTimeSys = a.mTimeSys;
+}
+
+tms Timer::mBuffer;
+double Timer::mHZ = double(sysconf(_SC_CLK_TCK));
+
+std::ostream& operator<<(std::ostream& out, const Timer &a) {
+  std::ios::fmtflags flags = out.flags();
+  out.flags(flags | std::ios::fixed);
+  out << "  user mTime: " << std::setprecision(2) << a.userTime() << " sec" << std::endl;
+  out << "system mTime: " << std::setprecision(2) << a.sysTime()  << " sec" << std::endl;
+  out << "  real mTime: " << std::setprecision(2) << a.realTime() << " sec" << std::endl;
+  out.flags(flags);
+  return out;
+}

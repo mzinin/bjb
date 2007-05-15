@@ -1,59 +1,52 @@
 #include <cstdarg>
 #include <cmath>
-#include "iutil.h"
-#include "imymonom64.h"
+#include "util.h"
+#include "monom32_64.h"
 
-IMyMonomInterface64::IMyMonomInterface64(IVariables* independ){
+MonomInterface32_64::MonomInterface32_64(Variables* independ){
   mDimIndepend = independ->dim();
   mIndepend = independ;
+  mask0 = 0;
+  mask1 = 0;
+  for (int i=0; i<32; i++){
+    mask0.set(2*i);
+    mask1.set(2*i+1);
+  }
 }
 
-IMyMonomInterface64* IMyMonomInterface64::create(IVariables* independ) {
-  IMyMonomInterface64* r = new IMyMonomInterface64(independ);
-  return r;
+Monom32_64 MonomInterface32_64::create() {
+  return Monom32_64(this);
 }
 
-IMyMonom64* IMyMonomInterface64::create() {
-  return new IMyMonom64(this);
+Monom32_64 MonomInterface32_64::copy(const Monom32_64 &a) {
+  return Monom32_64(a);
 }
 
-IMyMonom64* IMyMonomInterface64::copy(const IMyMonom64 &a) {
-  IMyMonom64* r;
-  if (this == a.monomInterface())
-    r = new IMyMonom64(a);
-
-  return r;
-}
-
-IMyMonom64::IMyMonom64(IMyMonomInterface64* r):
-  mRealization(r),
-  mDimIndepend(r->dimIndepend()),mWord((mDimIndepend-1)/32),exp(),Next(NULL){
+Monom32_64::Monom32_64(MonomInterface32_64* r):
+  mRealization(r),mDimIndepend(r->dimIndepend()),exp(),Next(NULL){
       IASSERT(mRealization);
       total_degree = 0;
   }
 
-IMyMonom64::IMyMonom64(const IMyMonom64& a):
-  mRealization(a.mRealization),
-  mDimIndepend(a.mDimIndepend),mWord((mDimIndepend-1)/32),exp(),Next(NULL){
+Monom32_64::Monom32_64(const Monom32_64& a):
+  mRealization(a.mRealization),mDimIndepend(a.mDimIndepend),exp(),Next(NULL){
     total_degree = a.total_degree;
     exp = a.exp;
   }
 
-IMyMonom64* IMyMonom64::copy(){
-  IMyMonom64* r = new IMyMonom64(mRealization);
-  r->total_degree = total_degree;
-  r->exp = exp;
+Monom32_64 Monom32_64::copy(){
+  Monom32_64 r = Monom32_64(mRealization);
+  r.total_degree = total_degree;
+  r.exp = exp;
   return r;
 }
 
-void IMyMonom64::set(const IMyMonom64& a) {
-  if (monomInterface() == a.monomInterface()) {
-    total_degree = a.total_degree;
-    exp = a.exp;
-  }
+void Monom32_64::set(const Monom32_64& a) {
+  total_degree = a.total_degree;
+  exp = a.exp;
 }
 
-void IMyMonom64::swap(IMyMonom64& a) {
+void Monom32_64::swap(Monom32_64& a) {
   unsigned t;
   t = total_degree;
   total_degree = a.total_degree;
@@ -64,33 +57,24 @@ void IMyMonom64::swap(IMyMonom64& a) {
   a.exp = d;
 }
 
-void IMyMonom64::prolong(int var, unsigned deg) {
-  if (deg>0) prolong(var);
-}
-
-void IMyMonom64::div(int var) {
-  if ( exp.test(var) ){
-    exp.reset(var);
+void Monom32_64::div(int var) {
+  if ( exp.test(2*var) || exp.test(2*var+1) ){
+    unsigned long t = 1;
+    t = t << 2*var;
+    exp = *(unsigned long*)&exp - t;
     total_degree--;
   }
   else
    IERROR("Monom can't be divided by variable");
 }
 
-bool IMyMonom64::equality(const IMyMonom64& a, int var, unsigned degree) const {
-  bitset<64> d=1;
-  d=d<<var;
-  d|=a.exp;
-  return exp==d;
-}
-
-int IMyMonom64::compare(const IMyMonom64& a, const IMyMonom64& b) const {
-  IMyMonom64 tmp(a);
+int Monom32_64::compare(const Monom32_64& a, const Monom32_64& b) const {
+  Monom32_64 tmp(a);
   tmp.mult(b);
   return compare(tmp);
 }
 
-std::istream& operator>>(std::istream& in, IMyMonom64& a) {
+std::istream& operator>>(std::istream& in, Monom32_64& a) {
   std::streampos posbeg = in.tellg();
   int var = a.independ()->read(in);
   if (var < 0) {
@@ -132,12 +116,12 @@ std::istream& operator>>(std::istream& in, IMyMonom64& a) {
   return in;
 }
 
-std::ostream& operator<<(std::ostream& out, const IMyMonom64& a) {
+std::ostream& operator<<(std::ostream& out, const Monom32_64& a) {
   if (a.degree() == 0)
     out << '1';
   else {
     int i = 0;
-    IVariables::ConstIterator j(a.independ()->begin());
+    Variables::ConstIterator j(a.independ()->begin());
     while(a.deg(i) == 0) {
       ++i;
       ++j;

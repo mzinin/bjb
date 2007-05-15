@@ -1,24 +1,18 @@
 #include <cctype>
-#include "ivariables.h"
+#include "variables.h"
 
 /*!
 \english
-  \file "util/ivariables.cpp"
+  \file "ivariables.cpp"
   \brief Contains implemntation of classes for variables of polinomial.
 
   Contains implemntation of class IVariables.
 \endenglish
-\russian
-  \file "util/ivariables.cpp"
-  \brief Содержит реализацию классов для переменных многочлена.
-
-  Содержит реализацию класса IVariables.
-\endrussian
 */
 
-IVariables::~IVariables() {}
+Variables::~Variables() {}
 
-void IVariables::add(const char *var) {
+void Variables::add(const char *var) {
   int n = strlen(var);
   char *name = new char[n+1];
   int k = 0;
@@ -37,7 +31,7 @@ void IVariables::add(const char *var) {
   mList.push_back(name);
 }
 
-int IVariables::find(const char *var) const {
+int Variables::find(const char *var) const {
   int r=0;
   ConstIterator i(mList.begin());
   while (i!=mList.end() && strcmp(*i, var) != 0) {
@@ -62,7 +56,7 @@ static int readVariable(std::istream& in, const char *var) {
   return r;
 }
 
-int IVariables::read(std::istream& in) const {
+int Variables::read(std::istream& in) const {
   std::streampos posbeg = in.tellg(), posend;
   int varCurrent=0, var=-1;
   int lenCurrent, len;

@@ -1,15 +1,15 @@
 #include <iostream>
 #include <fstream>
-#include "itimer.h"
-#include "igroebner64.h"
+#include "timer.h"
+#include "involutive32_64.h"
 
 using namespace std;
 
-void init64(char* filename){
+void init32_64(char* filename){
   ifstream fin(filename);
-  ITimer timer;
+  Timer timer;
 
-  IVariables vars;
+  Variables vars;
   //-----чтение переменных
   int i=0;
   char s[524288],c='0';
@@ -28,12 +28,12 @@ void init64(char* filename){
   }
   //-----конец чтения переменных
 
-  IMyMonomInterface64 mInterface = IMyMonomInterface64(&vars);
-  IMyPolyInterface64 *pInterface = IMyPolyInterface64::create(&mInterface);
+  MonomInterface32_64 mInterface = MonomInterface32_64(&vars);
+  PolyInterface32_64 pInterface = PolyInterface32_64(&mInterface);
 
-  IMyPoly64 *poly = pInterface->create();
-  vector<IMyPoly64*> pl, answer;
-  vector<IMyPoly64*>::iterator it(pl.begin()), an_it(answer.begin());
+  Poly32_64 *poly = new Poly32_64(&pInterface);
+  vector<Poly32_64*> pl, answer;
+  vector<Poly32_64*>::iterator it(pl.begin()), an_it(answer.begin());
 
   i=0;
   s[0]='\0';
@@ -54,7 +54,7 @@ void init64(char* filename){
   tmp_in.open("tmp1");
   while (!tmp_in.eof()){
     tmp_in>>*poly;
-    it=pl.insert(it, pInterface->copy(*poly));
+    it=pl.insert(it, new Poly32_64(*poly));
   }
   tmp_in.close();
   //-----конец чтения начального набора
@@ -76,16 +76,16 @@ void init64(char* filename){
   tmp_in2.open("tmp2");
   while (!tmp_in2.eof()){
     tmp_in2>>*poly;
-    an_it=answer.insert(an_it, pInterface->copy(*poly));
+    an_it=answer.insert(an_it, new Poly32_64(*poly));
   }
   tmp_in2.close();
   //-----конец чтения ответа
   fin.close();
 
   timer.start();
-  IGBasis64 bg(pl);
+  GBasis32_64 bg(pl);
   timer.stop();
-  cout<<bg<<endl;
+  //cout<<bg<<endl;
   cout<<timer<<endl;
 
   bool Is_Correct=true,Found;
@@ -115,7 +115,6 @@ void init64(char* filename){
     cout<<"The answer is CORRECT"<<endl;
   else
     cout<<"The answer is WRONG"<<endl;
-
 
   return;
 }

@@ -36,31 +36,13 @@
 
   Contains validation macroses and basic memory allocation functions.
 \endenglish
-\russian
-  \file iutil.h
-  \brief Содержит базовую конфигурацию.
-
-  Содержит проверочные макросы и базовые функции
-  выделения памяти.
-\endrussian
 */
 
-/*!
-\english
-\endenglish
-\russian
-  \defgroup util Утилиты
-\endrussian
-*/
 /*!
 \english
   \defgroup verify Validation macroses
   \ingroup util
 \endenglish
-\russian
-  \defgroup verify Проверочные макросы
-  \ingroup util
-\endrussian
 */
 /*!
 \english
@@ -70,13 +52,6 @@
 
   Calls \a assert with \a a as an argument if NDEBUG is not defined.
 \endenglish
-\russian
-  \def IASSERT(a)
-  \brief Вызывает макрос \a assert.
-  \ingroup verify
-
-  Вызывает макрос \a assert для \a a если неопределенно NDEBUG.
-\endrussian
 */
 /*!
 \english
@@ -86,13 +61,6 @@
 
   Calls method \a assertValid with \a a as an argument if NDEBUG is not defined.
 \endenglish
-\russian
-  \def IASSERTVALID(a)
-  \brief Вызывает функцию \a assertValid.
-  \ingroup verify
-
-  Вызывает функцию \a assertValid для \a a если неопределенно NDEBUG.
-\endrussian
 */
 /*!
 \english
@@ -102,13 +70,6 @@
 
   Calls function \a assertValid with \a a as an argument if NDEBUG is not defined.
 \endenglish
-\russian
-  \def IASSERT_VALID(a)
-  \brief Вызывает функцию \a assertValid.
-  \ingroup verify
-
-  Вызывает функцию \a assertValid для \a a если неопределенно NDEBUG.
-\endrussian
 */
 
 #ifdef NDEBUG
@@ -131,13 +92,6 @@
 
   Outputs an error \a a and terminates application execution.
 \endenglish
-\russian
-  \def IERROR(a)
-  \brief Выдает ошибку.
-  \ingroup verify
-
-  Выдает сообщение об ошибке \a a и прекращает выполнение программы.
-\endrussian
 */
 
 /*!
@@ -148,13 +102,6 @@
 
   Outputs a message \a a.
 \endenglish
-\russian
-  \def IMESSAGE(a)
-  \brief Выдает сообщение.
-  \ingroup verify
-
-  Выдает сообщение \a a.
-\endrussian
 */
 
 #define IERROR(a)     printf("**** file: %s\n     line: %d\n    error: %s\n", __FILE__, __LINE__, a), abort()
@@ -165,10 +112,6 @@
   \defgroup allocator Memory management
   \ingroup util
 \endenglish
-\russian
-  \defgroup allocator Работа с памятью
-  \ingroup util
-\endrussian
 */
 
 /*!
@@ -181,20 +124,9 @@
   Allocates memory block of the size equal to \a n bytes.
   \return Pointer to the allocated memory.
 \endenglish
-\russian
-  \fn inline void* imalloc(size_t n)
-  \brief Выделяет память из ОС.
-  \ingroup allocator
-
-  Является аналогом стандартного \a malloc.
-  Выделяет память размером \a n байт.
-  \return Указатель на выделенную память.
-\endrussian
 */
 /*!
 \english
-\endenglish
-\russian
   \fn inline void ifree(void* ptr)
   \brief Returns memory back to OS.
   \ingroup allocator
@@ -202,7 +134,7 @@
   Analog of the standard \a free.
   Return the memory block pointed by \a ptr that was previously allocated by \a imalloc or \a irealloc
   back to OS.
-\endrussian
+\endenglish
 */
 /*!
 \english
@@ -214,16 +146,6 @@
   Reallocates the memory block pointed by \a ptr that was previously allocated by \a imalloc or \a irealloc.
   \return Pointer to the reallocated memory block of size \a n.
 \endenglish
-\russian
-  \fn inline void* irealloc(void* ptr, size_t n)
-  \brief Перераспределяет память.
-  \ingroup allocator
-
-  Является аналогом стандартного \a realloc.
-  Перераспределяет ранее выделенную память \a imalloc или \a irealloc
-  по указателю \a ptr.
-  \return Указатель на перераспределенную память нового размера в \a n байт.
-\endrussian
 */
 
 #ifdef DLMALLOC
