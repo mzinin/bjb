@@ -6,6 +6,7 @@
 MonomInterface32_64::MonomInterface32_64(Variables* independ){
   mDimIndepend = independ->dim();
   mIndepend = independ;
+  mDword = (mDimIndepend-1)/8 + 1;
   mask0 = 0;
   mask1 = 0;
   for (int i=0; i<32; i++){
@@ -23,27 +24,32 @@ Monom32_64 MonomInterface32_64::copy(const Monom32_64 &a) {
 }
 
 Monom32_64::Monom32_64(MonomInterface32_64* r):
-  mRealization(r),mDimIndepend(r->dimIndepend()),exp(),Next(NULL){
+  mRealization(r),mDimIndepend(r->dimIndepend()),mDword(r->mDword),Next(NULL){
       IASSERT(mRealization);
       total_degree = 0;
+      exp = new unsigned long [mDword];
   }
 
 Monom32_64::Monom32_64(const Monom32_64& a):
-  mRealization(a.mRealization),mDimIndepend(a.mDimIndepend),exp(),Next(NULL){
+  mRealization(a.mRealization),mDimIndepend(a.mDimIndepend),mDword(a.mDword),Next(NULL){
     total_degree = a.total_degree;
-    exp = a.exp;
+    exp = new unsigned long [mDword];
+    for (int i=0; i<mDword; i++)
+      exp[i] = a.exp[i];
   }
 
 Monom32_64 Monom32_64::copy(){
   Monom32_64 r = Monom32_64(mRealization);
   r.total_degree = total_degree;
-  r.exp = exp;
+  for (int i=0; i<mDword; i++)
+    r.exp[i] = exp[i];
   return r;
 }
 
 void Monom32_64::set(const Monom32_64& a) {
   total_degree = a.total_degree;
-  exp = a.exp;
+  for (int i=0; i<mDword; i++)
+    exp[i] = a.exp[i];
 }
 
 void Monom32_64::swap(Monom32_64& a) {
@@ -52,16 +58,16 @@ void Monom32_64::swap(Monom32_64& a) {
   total_degree = a.total_degree;
   a.total_degree = t;
 
-  bitset<64> d = exp;
+  unsigned long *d = exp;
   exp = a.exp;
   a.exp = d;
 }
 
 void Monom32_64::div(int var) {
-  if ( exp.test(2*var) || exp.test(2*var+1) ){
-    unsigned long t = 1;
-    t = t << 2*var;
-    exp = *(unsigned long*)&exp - t;
+  unsigned char *d = (unsigned char*)exp;
+  d += var;
+  if ( *d ){
+    (*d)--;
     total_degree--;
   }
   else

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include "variables.h"
 #include "init32_64.h"
-#include "init64_64.h"
 
 using namespace std;
 
@@ -42,20 +42,16 @@ int main(int argc, char *argv[])
 
   int bytes = (vars.dim()-1)/32;
 
-  switch (bytes){
-    case 0:
+  //switch (bytes){
+  //  case 0:
       init32_64(argv[1]);
-      break;
-    case 1:
-      init64_64(argv[1]);
-      break;
-  }
+  //    break;
+  //}
 
   return EXIT_SUCCESS;
 }
 
 /*
-#include "monom64_64.h"
 int main(int argc, char *argv[])
 {
   ifstream fin("test");
@@ -77,14 +73,13 @@ int main(int argc, char *argv[])
 	}
   }
 
-  MonomInterface64_64 mInterface = MonomInterface64_64(&vars);
+  MonomInterface32_64 mInterface = MonomInterface32_64(&vars);
 
-  Monom64_64 p1(&mInterface), p2(&mInterface), p3(&mInterface);
+  Monom32_64 p1(&mInterface), p2(&mInterface), p3(&mInterface);
 
   fin>>p1>>p2;
-  p3.mult(p1,p2);
   cout<<p1<<' '<<p2<<' '<<p3<<endl;
-  cout<<p1.num_of_only_var()<<endl;
+  cout<<(p1==p2)<<endl;
 
 
   return EXIT_SUCCESS;

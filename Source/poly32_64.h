@@ -147,13 +147,8 @@ public:
   void mult(const Monom32_64& m);
   void mult(const Poly32_64 &a);
 
-  void mult1(int var, unsigned deg=1);
-  void mult1(const Monom32_64& m);
-  void mult1(const Poly32_64 &a);
-
   void reduction(const Poly32_64& a);
   void head_reduction(const Poly32_64& a);
-  void reduction1(const Poly32_64& a);
 
   ConstIterator begin() const;
   Iterator begin();

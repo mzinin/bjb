@@ -179,6 +179,7 @@ void JanetTree32_64::insert(Triple32_64* trpl) {
 void JanetTree32_64::update(Triple32_64 *trpl, vector<Triple32_64*> &set) {
   //IASSERT(trpl != NULL); IASSERT(trpl->poly != NULL);
   //IASSERT(find(trpl->poly->lm()) == trpl);
+
   ConstIterator j(mRoot);
   int var = 0;
   do {
@@ -191,18 +192,8 @@ void JanetTree32_64::update(Triple32_64 *trpl, vector<Triple32_64*> &set) {
     if (j.isNextDeg()){
       if (!trpl->nmp.test(var)){
         Poly32_64* tmp = new Poly32_64(*trpl->poly);
-        if (trpl->poly->lm().isHG()){
-          tmp->mult(var);
-          set.push_back(new Triple32_64(tmp, trpl->anc, trpl, 0, true));
-        }
-        else{
-          tmp->mult1(var);
-          if (!tmp->isZero())
-            if ( tmp->lm().equality(trpl->poly->lm(),var) )
-              set.push_back(new Triple32_64(tmp, trpl->anc, trpl, 0, true));
-            else
-              set.push_back(new Triple32_64(tmp, tmp->lm(), trpl, 0, false));
-        }
+        tmp->mult(var);
+        set.push_back(new Triple32_64(tmp, trpl->anc, trpl, 0, true));
         trpl->nmp.set(var);
       }
     }
