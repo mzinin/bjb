@@ -1,95 +1,132 @@
-#include <cctype>
+#include <iostream>
+
 #include "variables.h"
 
-/*!
-\english
-  \file "ivariables.cpp"
-  \brief Contains implemntation of classes for variables of polinomial.
-
-  Contains implemntation of class IVariables.
-\endenglish
-*/
-
-Variables::~Variables() {}
-
-void Variables::add(const char *var) {
-  int n = strlen(var);
-  char *name = new char[n+1];
-  int k = 0;
-  while (k < n && isspace(var[k])) {
-    ++k;
-  }
-  int i = 0;
-  while (k < n && !isspace(var[k])) {
-    name[i] = var[k];
-    ++i;
-    ++k;
-  }
-  name[i] = '\0';
-  if (find(name) >= 0)
-    IERROR("find(name) < 0");
-  mList.push_back(name);
-}
-
-int Variables::find(const char *var) const {
-  int r=0;
-  ConstIterator i(mList.begin());
-  while (i!=mList.end() && strcmp(*i, var) != 0) {
-    ++i;
-    ++r;
-  }
-  if (i==mList.end())
-    r = -1;
-  return r;
-}
-
-static int readVariable(std::istream& in, const char *var) {
-  in >> std::ws;
-  int r=0;
-  int i = 0;
-  while (var[i] && var[i] == in.get()) {
-    ++i;
-    ++r;
-  }
-  if (var[i])
-    r = 0;
-  return r;
-}
-
-int Variables::read(std::istream& in) const {
-  std::streampos posbeg = in.tellg(), posend;
-  int varCurrent=0, var=-1;
-  int lenCurrent, len;
-  ConstIterator i=mList.begin();
-  while (i!=mList.end()){
-    in.seekg(posbeg);
-    lenCurrent = readVariable(in, *i);
-    if (lenCurrent > 0) {
-      var = varCurrent;
-      len = lenCurrent;
-      posend = in.tellg();
-      break;
+namespace
+{
+    int ReadVariable(std::istream& in, const char* var)
+    {
+        in >> std::ws;
+        int commonLength = 0;
+        int i = 0;
+        while (var[i] && var[i] == in.get())
+        {
+            ++i;
+            ++commonLength;
+        }
+        if (var[i])
+        {
+            commonLength = 0;
+        }
+        return commonLength;
     }
-    ++varCurrent;
-    ++i;
-  }
+}
 
-  while (i!=mList.end()){
-    in.seekg(posbeg);
-    lenCurrent = readVariable(in, *i);
-    if (lenCurrent > len) {
-      var = varCurrent;
-      len = lenCurrent;
-      posend = in.tellg();
+Variables::Variables()
+    : VariablesNames()
+{
+}
+
+Variables::~Variables()
+{
+    for (register unsigned i = 0; i < Size(); ++i)
+    {
+        delete VariablesNames[i];
     }
-    ++varCurrent;
-    ++i;
-  }
+    VariablesNames.clear();
+}
 
-  if (var >= 0)
-    in.seekg(posend);
-  else
-    in.seekg(posbeg);
+bool Variables::Add(const char* var)
+{
+    int varLength = strlen(var);
+    char *name = new char[varLength + 1];
+    int k = 0;
+    while (k < varLength && isspace(var[k]))
+    {
+        ++k;
+    }
 
-  return var;
+    int i = 0;
+    while (k < varLength && !isspace(var[k]))
+    {
+        name[i] = var[k];
+        ++i;
+        ++k;
+    }
+    name[i] = '\0';
+
+    if (Find(name) >= 0)
+    {
+        return false;
+    }
+    else
+    {
+        VariablesNames.push_back(name);
+        return true;
+    }
+}
+
+int Variables::Find(const char *var) const
+{
+    int position = 0;
+    ConstIterator i(VariablesNames.begin());
+    while (i != VariablesNames.end() && strcmp(*i, var) != 0)
+    {
+        ++i;
+        ++position;
+    }
+
+    if (i == VariablesNames.end())
+    {
+        position = -1;
+    }
+
+    return position;
+}
+
+int Variables::Read(std::istream& in) const
+{
+   std::streampos startPosition = in.tellg(), endPosition = 0;
+   int currentVariable = 0, foundVariable = -1;
+   int currentCommonLength = 0, maxCommonLength = 0;
+   ConstIterator i = VariablesNames.begin();
+   while (i != VariablesNames.end())
+   {
+        in.seekg(startPosition);
+        currentCommonLength = ReadVariable(in, *i);
+        if (currentCommonLength > 0)
+        {
+            foundVariable = currentVariable;
+            maxCommonLength = currentCommonLength;
+            endPosition = in.tellg();
+            break;
+        }
+        ++currentVariable;
+        ++i;
+   }
+
+    while (i != VariablesNames.end())
+    {
+        in.seekg(startPosition);
+        currentCommonLength = ReadVariable(in, *i);
+        if (currentCommonLength > maxCommonLength)
+        {
+            foundVariable = currentVariable;
+            maxCommonLength = currentCommonLength;
+            endPosition = in.tellg();
+        }
+        ++currentVariable;
+        ++i;
+    }
+
+    if (foundVariable >= 0)
+    {
+        in.seekg(endPosition);
+    }
+    else
+    {
+        in.seekg(startPosition);
+    }
+
+    return foundVariable;
 }

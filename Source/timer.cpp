@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2004 by Blinkov Yu.A.                                   *
+ *   Copyright (C) 2008 by Blinkov Yu. A.                                  *
  *   BlinkovUA@info.sgu.ru                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,53 +18,128 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "./timer.h"
-#include <sys/time.h>
-#include <unistd.h>
+#ifdef _WIN32
+    #ifndef _WIN32_WINNT
+        #define _WIN32_WINNT 0x0500
+    #endif
+    #include <windows.h>
+#else
+    #include <unistd.h>
+    #include <sys/times.h>
+#endif //_WIN32
 
-void Timer::start() {
-  times(&mBuffer);
+#include <iomanip>
+#include "timer.h"
 
-  mUser = Timer::mBuffer.tms_utime;
-  mSys  = Timer::mBuffer.tms_stime;
-
-  mTimeUser = 0;
-  mTimeSys  = 0;
+Timer::Timer()
+    : UserTime(0.0)
+    , SysTime(0.0)
+    , RealTime(0.0)
+    , UserElapsed(0.0)
+    , SysElapsed(0.0)
+    , RealElapsed(0.0)
+{
 }
 
-void Timer::stop() {
-  times(&mBuffer);
-
-  mTimeUser += Timer::mBuffer.tms_utime - mUser;
-  mTimeSys  += Timer::mBuffer.tms_stime - mSys;
+Timer::~Timer()
+{
 }
 
-void Timer::ignore() {
+#ifdef _WIN32
+
+double Timer::Hz = 10000000.0;
+
+void Timer::Start()
+{
+    UserElapsed = 0.0;
+    SysElapsed = 0.0;
+    RealElapsed = 0.0;
+
+    ULARGE_INTEGER cTime, eTime, kTime, uTime, rTime;
+
+    ::GetProcessTimes(::GetCurrentProcess(), (LPFILETIME)&cTime, (LPFILETIME)&eTime, (LPFILETIME)&kTime, (LPFILETIME)&uTime);
+    ::GetSystemTimeAsFileTime((LPFILETIME)&rTime);
+
+    UserTime = uTime.QuadPart/Hz;
+    SysTime = kTime.QuadPart/Hz;
+    RealTime = rTime.QuadPart/Hz;
 }
 
-void Timer::cont() {
-  times(&mBuffer);
+void Timer::Continue()
+{
+    ULARGE_INTEGER cTime, eTime, kTime, uTime, rTime;
 
-  mUser = Timer::mBuffer.tms_utime;
-  mSys  = Timer::mBuffer.tms_stime;
+    ::GetProcessTimes(::GetCurrentProcess(), (LPFILETIME)&cTime, (LPFILETIME)&eTime, (LPFILETIME)&kTime, (LPFILETIME)&uTime);
+    ::GetSystemTimeAsFileTime((LPFILETIME)&rTime);
+
+    UserTime = uTime.QuadPart/Hz;
+    SysTime = kTime.QuadPart/Hz;
+    RealTime = rTime.QuadPart/Hz;
 }
 
-void Timer::operator = (const Timer & a) {
-  mUser = a.mUser;
-  mSys = a.mSys;
-  mTimeUser = a.mTimeUser;
-  mTimeSys = a.mTimeSys;
+void Timer::Stop()
+{
+    ULARGE_INTEGER cTime, eTime, kTime, uTime, rTime;
+
+    ::GetProcessTimes(::GetCurrentProcess(), (LPFILETIME)&cTime, (LPFILETIME)&eTime, (LPFILETIME)&kTime, (LPFILETIME)&uTime);
+    ::GetSystemTimeAsFileTime((LPFILETIME)&rTime);
+
+    UserElapsed += uTime.QuadPart/Hz - UserTime;
+    SysElapsed += kTime.QuadPart/Hz - SysTime;
+    RealElapsed += rTime.QuadPart/Hz - RealTime;
+
+    UserTime = uTime.QuadPart/Hz;
+    SysTime = kTime.QuadPart/Hz;
+    RealTime = rTime.QuadPart/Hz;
 }
 
-tms Timer::mBuffer;
-double Timer::mHZ = double(sysconf(_SC_CLK_TCK));
+#else
 
-std::ostream& operator<<(std::ostream& out, const Timer &a) {
-  std::ios::fmtflags flags = out.flags();
-  out.flags(flags | std::ios::fixed);
-  out << "  user mTime: " << std::setprecision(2) << a.userTime() << " sec" << std::endl;
-  out << "system mTime: " << std::setprecision(2) << a.sysTime()  << " sec" << std::endl;
-  out << "  real mTime: " << std::setprecision(2) << a.realTime() << " sec" << std::endl;
-  out.flags(flags);
-  return out;
+double Timer::Hz = double(sysconf(_SC_CLK_TCK));
+
+void Timer::Start()
+{
+    UserElapsed = 0.0;
+    SysElapsed = 0.0;
+    RealElapsed = 0.0;
+
+    tms buffer;
+    RealTime = times(&buffer)/Hz;
+    UserTime = buffer.tms_utime/Hz;
+    SysTime = buffer.tms_stime/Hz;
+}
+
+void Timer::Continue()
+{
+    tms buffer;
+    RealTime = times(&buffer)/Hz;
+    UserTime = buffer.tms_utime/Hz;
+    SysTime = buffer.tms_stime/Hz;
+}
+
+void Timer::Stop()
+{
+    tms buffer;
+    double t = times(&buffer)/Hz;
+
+    UserElapsed += buffer.tms_utime/Hz - UserTime;
+    SysElapsed += buffer.tms_stime/Hz - SysTime;
+    RealElapsed += t - RealTime;
+
+    UserTime = buffer.tms_utime/Hz;
+    SysTime = buffer.tms_stime/Hz;
+    RealTime = t;
+}
+
+#endif // _WIN32
+
+std::ostream& operator<<(std::ostream& out, const Timer &timer)
+{
+    std::ios::fmtflags flags = out.flags();
+    out.flags(flags | std::ios::fixed);
+    out << "  user time: " << std::setprecision(2) << timer.GetUserTime() << " sec" << std::endl;
+    out << "system time: " << std::setprecision(2) << timer.GetSysTime()  << " sec" << std::endl;
+    out << "  real time: " << std::setprecision(2) << timer.GetRealTime() << " sec" << std::endl;
+    out.flags(flags);
+    return out;
 }

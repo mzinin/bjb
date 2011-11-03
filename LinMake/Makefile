@@ -5,35 +5,105 @@ BINARY = .
 
 all: myginv
 
-myginv: myginv.o involutive32_64.o janettree32_64.o poly32_64.o monom32_64.o variables.o timer.o
+clear:
+	@rm $(BINARY)/*.o
+	@rm $(BINARY)/myginv
+
+myginv: timer.o \
+        variables.o \
+        fast_allocator.o \
+        monom.o \
+        polynom.o \
+        triple.o \
+        janettree.o \
+        tset.o \
+        qset.o \
+        groebner_basis.o \
+        resource_counter.o \
+        settings_manager.o \
+        version.o \
+        launcher.o \
+        myginv.o
 	$(CXX) \
-            $(BINARY)/myginv.o \
-            $(BINARY)/involutive32_64.o \
-            $(BINARY)/janettree32_64.o \
-            $(BINARY)/poly32_64.o \
-            $(BINARY)/monom32_64.o \
-            $(BINARY)/variables.o \
             $(BINARY)/timer.o \
+            $(BINARY)/variables.o \
+            $(BINARY)/fast_allocator.o \
+            $(BINARY)/monom.o \
+            $(BINARY)/polynom.o \
+            $(BINARY)/triple.o \
+            $(BINARY)/janettree.o \
+            $(BINARY)/tset.o \
+            $(BINARY)/qset.o \
+            $(BINARY)/groebner_basis.o \
+            $(BINARY)/resource_counter.o \
+            $(BINARY)/settings_manager.o \
+            $(BINARY)/version.o \
+            $(BINARY)/launcher.o \
+            $(BINARY)/myginv.o \
             -o $(BINARY)/myginv
 	@rm $(BINARY)/*.o
 
-myginv.o: $(SOURCE)/init32_64.h
+myginv.o: $(SOURCE)/launcher.h
 	$(CXX) $(CXXFLAGS) $(SOURCE)/myginv.cpp -o $(BINARY)/myginv.o
 
-involutive32_64.o: $(SOURCE)/involutive32_64.h $(SOURCE)/janettree32_64.h $(SOURCE)/timer.h
-	$(CXX) $(CXXFLAGS) $(SOURCE)/involutive32_64.cpp -o $(BINARY)/involutive32_64.o
+launcher.o: $(SOURCE)/fast_allocator.h \
+            $(SOURCE)/polynom.h \
+            $(SOURCE)/groebner_basis.h \
+            $(SOURCE)/launcher.h \
+            $(SOURCE)/resource_counter.h \
+            $(SOURCE)/settings_manager.h \
+            $(SOURCE)/version.h
+	$(CXX) $(CXXFLAGS) $(SOURCE)/launcher.cpp -o $(BINARY)/launcher.o
 
-janettree32_64.o: $(SOURCE)/janettree32_64.h $(SOURCE)/poly32_64.h
-	$(CXX) $(CXXFLAGS) $(SOURCE)/janettree32_64.cpp -o $(BINARY)/janettree32_64.o
+version.o: $(SOURCE)/version.h
+	$(CXX) $(CXXFLAGS) $(SOURCE)/version.cpp -o $(BINARY)/version.o
 
-poly32_64.o: $(SOURCE)/poly32_64.h $(SOURCE)/monom32_64.h
-	$(CXX) $(CXXFLAGS) $(SOURCE)/poly32_64.cpp -o $(BINARY)/poly32_64.o
+settings_manager.o: $(SOURCE)/settings_manager.h
+	$(CXX) $(CXXFLAGS) $(SOURCE)/settings_manager.cpp  -o $(BINARY)/settings_manager.o
 
-monom32_64.o: $(SOURCE)/monom32_64.h $(SOURCE)/variables.h $(SOURCE)/util.h
-	$(CXX) $(CXXFLAGS) $(SOURCE)/monom32_64.cpp -o $(BINARY)/monom32_64.o
+resource_counter.o: $(SOURCE)/timer.h \
+                    $(SOURCE)/fast_allocator.h \
+                    $(SOURCE)/resource_counter.h
+	$(CXX) $(CXXFLAGS) $(SOURCE)/resource_counter.cpp  -o $(BINARY)/resource_counter.o
 
-variables.o: $(SOURCE)/variables.h $(SOURCE)/util.h
+groebner_basis.o: $(SOURCE)/groebner_basis.h \
+                  $(SOURCE)/pcomparator.h \
+                  $(SOURCE)/timer.h \
+                  $(SOURCE)/tset.h \
+                  $(SOURCE)/qset.h
+	$(CXX) $(CXXFLAGS) $(SOURCE)/groebner_basis.cpp -o $(BINARY)/groebner_basis.o
+
+tset.o: $(SOURCE)/tset.h \
+        $(SOURCE)/janettree.h
+	$(CXX) $(CXXFLAGS) $(SOURCE)/tset.cpp -o $(BINARY)/tset.o
+
+qset.o: $(SOURCE)/qset.h \
+        $(SOURCE)/triple.h
+	$(CXX) $(CXXFLAGS) $(SOURCE)/qset.cpp -o $(BINARY)/qset.o
+
+janettree.o: $(SOURCE)/janettree.h \
+             $(SOURCE)/triple.h
+	$(CXX) $(CXXFLAGS) $(SOURCE)/janettree.cpp -o $(BINARY)/janettree.o
+
+triple.o: $(SOURCE)/triple.h \
+          $(SOURCE)/polynom.h
+	$(CXX) $(CXXFLAGS) $(SOURCE)/triple.cpp -o $(BINARY)/triple.o
+
+polynom.o: $(SOURCE)/polynom.h \
+           $(SOURCE)/monom.h \
+           $(SOURCE)/fast_allocator.h
+	$(CXX) $(CXXFLAGS) $(SOURCE)/polynom.cpp -o $(BINARY)/polynom.o
+
+monom.o: $(SOURCE)/monom.h \
+         $(SOURCE)/variables.h \
+         $(SOURCE)/fast_allocator.h
+	$(CXX) $(CXXFLAGS) $(SOURCE)/monom.cpp -o $(BINARY)/monom.o
+
+fast_allocator.o: $(SOURCE)/fast_allocator.h
+	$(CXX) $(CXXFLAGS) $(SOURCE)/fast_allocator.cpp -o $(BINARY)/fast_allocator.o
+
+variables.o: $(SOURCE)/variables.h
 	$(CXX) $(CXXFLAGS) $(SOURCE)/variables.cpp -o $(BINARY)/variables.o
 
 timer.o: $(SOURCE)/timer.h
-	$(CXX) $(CXXFLAGS) $(SOURCE)/timer.cpp  -o $(BINARY)/timer.o
+	$(CXX) $(CXXFLAGS) $(SOURCE)/timer.cpp -o $(BINARY)/timer.o

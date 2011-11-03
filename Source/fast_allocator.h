@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2008 by Blinkov Yu. A.                                  *
+ *   Copyright (C) 2004 by Blinkov Yu.A.                                   *
  *   BlinkovUA@info.sgu.ru                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -18,52 +18,47 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef FAST_ALLOCATOR_H
+#define FAST_ALLOCATOR_H
 
-#include <iostream>
-
-class Timer
+class FastAllocator
 {
 private:
-    static double Hz;
-
-    double UserTime;
-    double SysTime;
-    double RealTime;
-
-    double UserElapsed;
-    double SysElapsed;
-    double RealElapsed;
+    const size_t MemoryPageSize;
+    const size_t TSize;
+    const size_t PageSize;
+    void**       FreeBlock;
+    static unsigned long UsedMemory;
 
 public:
-    Timer();
-    ~Timer();
+    static unsigned long GetUsedMemory();
 
-    void Start();
-    void Continue();
-    void Stop();
+    FastAllocator(const size_t blockSize);
+    ~FastAllocator();
 
-    double GetUserTime() const;
-    double GetSysTime() const;
-    double GetRealTime() const;
+    void* Allocate();
+    void Free(void* pointer);
 
-    friend std::ostream& operator<<(std::ostream& out, const Timer &timer);
+private:
+    void ExpandMemory();
 };
 
-inline double Timer::GetUserTime() const
+inline void* FastAllocator::Allocate()
 {
-    return UserElapsed;
+    if (!FreeBlock)
+    {
+        ExpandMemory();
+    }
+
+    void* pointer = static_cast<void*>(FreeBlock);
+    FreeBlock = static_cast<void**>(*FreeBlock);
+    return pointer;
 }
 
-inline double Timer::GetSysTime() const
+inline void FastAllocator::Free(void* pointer)
 {
-    return SysElapsed;
+    *(static_cast<void***>(pointer)) = FreeBlock;
+    FreeBlock = static_cast<void**>(pointer);
 }
 
-inline double Timer::GetRealTime() const
-{
-    return RealElapsed;
-}
-
-#endif // TIMER_H
+#endif // FAST_ALLOCATOR_H
