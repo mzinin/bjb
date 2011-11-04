@@ -16,7 +16,7 @@ void TSet::Clear()
 
 void TSet::CollectNonMultiProlongations(TSet::Iterator& iterator, std::list<Triple*>& set)
 {
-    if (iterator == TripleList.end() || !(*iterator)/* || (**iterator).GetPolynom()->IsBinomial()*/)
+    if (iterator == TripleList.end() || !(*iterator))
     {
         return;
     }
@@ -33,7 +33,7 @@ void TSet::CollectNonMultiProlongations(TSet::Iterator& iterator, std::list<Trip
             tmpPolynom->Multiply(*nmvIterator, 1);
             set.push_back(new Triple(tmpPolynom
                                    , (**iterator).GetAncestor()
-                                   , std::set<Monom::Integer>()
+                                   , (**iterator).GetNmp()
                                    , (*iterator)
                                    , *nmvIterator)
                           );
