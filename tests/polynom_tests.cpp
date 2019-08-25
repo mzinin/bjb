@@ -1,4 +1,6 @@
-#include "..\polynom.h"
+#include "polynom.h"
+
+#include <cstdlib>
 #include <iostream>
 
 void SetVariables()

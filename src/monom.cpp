@@ -1,4 +1,6 @@
 #include "monom.h"
+
+#include <algorithm>
 #include <sstream>
 
 FastAllocator Monom::VarsListNode::Allocator(sizeof(Monom::VarsListNode));

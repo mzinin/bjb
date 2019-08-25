@@ -1,3 +1,4 @@
+#include "current_version.h"
 #include "version.h"
 
 static VersionInfo Version(MAJOR_VESION, MINOR_VERSION, REVISION);

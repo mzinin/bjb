@@ -1,4 +1,6 @@
-#include "..\janettree.h"
+#include "janettree.h"
+
+#include <cstdlib>
 #include <iostream>
 #include <set>
 

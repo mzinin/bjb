@@ -1,9 +1,6 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define MAJOR_VESION 0
-#define MINOR_VERSION 3
-#define REVISION 9
 
 class VersionInfo
 {

@@ -21,6 +21,7 @@
 #ifndef FAST_ALLOCATOR_H
 #define FAST_ALLOCATOR_H
 
+#include <cstddef>
 #include <list>
 
 class FastAllocator

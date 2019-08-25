@@ -1,4 +1,6 @@
-#include "..\monom.h"
+#include "monom.h"
+
+#include <cstdlib>
 #include <iostream>
 
 void SetVariables()
