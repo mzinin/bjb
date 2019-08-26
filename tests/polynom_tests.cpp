@@ -3,17 +3,18 @@
 #include <cstdlib>
 #include <iostream>
 
-void SetVariables()
+
+void setVariables()
 {
-    Monom::AddVariable("x0");
-    Monom::AddVariable("x1");
-    Monom::AddVariable("x2");
-    Monom::AddVariable("x3");
-    Monom::AddVariable("x4");
-    Monom::AddVariable("x5");
+    Monom::addVariable("x0");
+    Monom::addVariable("x1");
+    Monom::addVariable("x2");
+    Monom::addVariable("x3");
+    Monom::addVariable("x4");
+    Monom::addVariable("x5");
 }
 
-bool RunTestGroup1()
+bool runTestGroup1()
 {
     const int groupNumber = 1;
     int currentTestNumber = 0;
@@ -24,7 +25,7 @@ bool RunTestGroup1()
     {
         ++currentTestNumber;
         Polynom p1;
-        currentResult = p1.ToString() == "0";
+        currentResult = p1.toString() == "0";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -40,7 +41,7 @@ bool RunTestGroup1()
     {
         ++currentTestNumber;
         Polynom p1("x1*x4 + x0");
-        currentResult = p1.ToString() == "x1*x4 + x0";
+        currentResult = p1.toString() == "x1*x4 + x0";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -56,7 +57,7 @@ bool RunTestGroup1()
     {
         ++currentTestNumber;
         Polynom p1("(x1+x2)^2");
-        currentResult = p1.ToString() == "x1^2 + x2^2";
+        currentResult = p1.toString() == "x1^2 + x2^2";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -72,7 +73,7 @@ bool RunTestGroup1()
     {
         ++currentTestNumber;
         Polynom p1("1");
-        currentResult = p1.ToString() == "1";
+        currentResult = p1.toString() == "1";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -88,7 +89,7 @@ bool RunTestGroup1()
     {
         ++currentTestNumber;
         Polynom p1("0");
-        currentResult = p1.ToString() == "0";
+        currentResult = p1.toString() == "0";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -104,7 +105,7 @@ bool RunTestGroup1()
     {
         ++currentTestNumber;
         Polynom p1("x1^2*x2 + x2^2*x3^2 + x5 + x3");
-        currentResult = p1.ToString() == "x2^2*x3^2 + x1^2*x2 + x3 + x5";
+        currentResult = p1.toString() == "x2^2*x3^2 + x1^2*x2 + x3 + x5";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -121,7 +122,7 @@ bool RunTestGroup1()
         ++currentTestNumber;
         Polynom p1("x1*x2 + x2^2*x3^2 + x5 + x3");
         Polynom p2(p1);
-        currentResult = p2.ToString() == "x2^2*x3^2 + x1*x2 + x3 + x5";
+        currentResult = p2.toString() == "x2^2*x3^2 + x1*x2 + x3 + x5";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -145,7 +146,7 @@ bool RunTestGroup1()
     return result;
 }
 
-bool RunTestGroup2()
+bool runTestGroup2()
 {
     const int groupNumber = 2;
     int currentTestNumber = 0;
@@ -156,8 +157,8 @@ bool RunTestGroup2()
     {
         ++currentTestNumber;
         Polynom p1("x1 + x2");
-        p1.SetOne();
-        currentResult = p1.ToString() == "1" && !p1.IsZero();
+        p1.setOne();
+        currentResult = p1.toString() == "1" && !p1.isZero();
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -173,8 +174,8 @@ bool RunTestGroup2()
     {
         ++currentTestNumber;
         Polynom p1("x1 + x2");
-        p1.SetZero();
-        currentResult = p1.ToString() == "0" && p1.IsZero();
+        p1.setZero();
+        currentResult = p1.toString() == "0" && p1.isZero();
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -190,7 +191,7 @@ bool RunTestGroup2()
     {
         ++currentTestNumber;
         Polynom p1;
-        currentResult = p1.IsZero();
+        currentResult = p1.isZero();
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -206,7 +207,7 @@ bool RunTestGroup2()
     {
         ++currentTestNumber;
         Polynom p1("x1");
-        currentResult = !p1.IsZero();
+        currentResult = !p1.isZero();
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -222,7 +223,7 @@ bool RunTestGroup2()
     {
         ++currentTestNumber;
         Polynom p1("x1^2");
-        currentResult = !p1.IsBinomial();
+        currentResult = !p1.isBinomial();
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -238,7 +239,7 @@ bool RunTestGroup2()
     {
         ++currentTestNumber;
         Polynom p1("x1^2 + x2");
-        currentResult = !p1.IsBinomial();
+        currentResult = !p1.isBinomial();
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -254,7 +255,7 @@ bool RunTestGroup2()
     {
         ++currentTestNumber;
         Polynom p1("x3^2 + x3");
-        currentResult = p1.IsBinomial();
+        currentResult = p1.isBinomial();
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -270,7 +271,7 @@ bool RunTestGroup2()
     {
         ++currentTestNumber;
         Polynom p1("x1*x2 + x1");
-        currentResult = !p1.IsBinomial();
+        currentResult = !p1.isBinomial();
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -294,7 +295,7 @@ bool RunTestGroup2()
     return result;
 }
 
-bool RunTestGroup3()
+bool runTestGroup3()
 {
     const int groupNumber = 3;
     int currentTestNumber = 0;
@@ -305,7 +306,7 @@ bool RunTestGroup3()
     {
         ++currentTestNumber;
         Polynom p1("x1*x2 + x2 + x1 + x2");
-        currentResult = p1.Length() == 2;
+        currentResult = p1.length() == 2;
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -321,7 +322,7 @@ bool RunTestGroup3()
     {
         ++currentTestNumber;
         Polynom p1("x1*x2*x4 + x2*x3 + x4*x1 + x5 + x4*x2*x1");
-        currentResult = p1.Degree() == 2;
+        currentResult = p1.degree() == 2;
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -337,7 +338,7 @@ bool RunTestGroup3()
     {
         ++currentTestNumber;
         Polynom p1("x1*x2*x4 + x2*x3 + x4*x1 + x5 + x4*x2*x1");
-        currentResult = p1.Lm().ToString() == "x2*x3";
+        currentResult = p1.lm().toString() == "x2*x3";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -353,8 +354,8 @@ bool RunTestGroup3()
     {
         ++currentTestNumber;
         Polynom p1("x1*x2*x4 + x2*x3 + x4*x1 + x5 + x4*x2*x1");
-        p1.RidOfLm();
-        currentResult = p1.ToString() == "x1*x4 + x5";
+        p1.ridOfLm();
+        currentResult = p1.toString() == "x1*x4 + x5";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -370,7 +371,7 @@ bool RunTestGroup3()
     {
         ++currentTestNumber;
         Polynom* p1 = new Polynom("x2*x3 + x4*x1 + x5 + x4*x2*x1");
-        currentResult = p1 && p1->ToString() == "x1*x2*x4 + x2*x3 + x1*x4 + x5";
+        currentResult = p1 && p1->toString() == "x1*x2*x4 + x2*x3 + x1*x4 + x5";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -413,7 +414,7 @@ bool RunTestGroup3()
     return result;
 }
 
-bool RunTestGroup4()
+bool runTestGroup4()
 {
     const int groupNumber = 4;
     int currentTestNumber = 0;
@@ -425,7 +426,7 @@ bool RunTestGroup4()
         ++currentTestNumber;
         Polynom p1("x1*x2 + x2"), p2("x3 + x4");
         p2 = p1;
-        currentResult = p1.ToString() == "x1*x2 + x2" && p2.ToString() == "x1*x2 + x2";
+        currentResult = p1.toString() == "x1*x2 + x2" && p2.toString() == "x1*x2 + x2";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -443,7 +444,7 @@ bool RunTestGroup4()
         Polynom p1("x1*x2 + x2");
         Monom m1("x2");
         p1 += m1;
-        currentResult = p1.ToString() == "x1*x2";
+        currentResult = p1.toString() == "x1*x2";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -461,7 +462,7 @@ bool RunTestGroup4()
         Polynom p1("x1*x2 + x2");
         Monom m1("x1*x2");
         p1 += m1;
-        currentResult = p1.ToString() == "x2";
+        currentResult = p1.toString() == "x2";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -479,7 +480,7 @@ bool RunTestGroup4()
         Polynom p1("x1*x2 + x4");
         Monom m1("x2");
         p1 += m1;
-        currentResult = p1.ToString() == "x1*x2 + x2 + x4";
+        currentResult = p1.toString() == "x1*x2 + x2 + x4";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -496,7 +497,7 @@ bool RunTestGroup4()
         ++currentTestNumber;
         Polynom p1("x1*x2 + x4"), p2("x1^2 + x5");
         p1 += p2;
-        currentResult = p1.ToString() == "x1^2 + x1*x2 + x4 + x5";
+        currentResult = p1.toString() == "x1^2 + x1*x2 + x4 + x5";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -513,7 +514,7 @@ bool RunTestGroup4()
         ++currentTestNumber;
         Polynom p1("x1*x2 + x4"), p2("x1^2 + x4");
         p1 += p2;
-        currentResult = p1.ToString() == "x1^2 + x1*x2";
+        currentResult = p1.toString() == "x1^2 + x1*x2";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -530,7 +531,7 @@ bool RunTestGroup4()
         ++currentTestNumber;
         Polynom p1("x1*x2 + x4"), p2("x1^2 + x1*x2 + x4");
         p1 += p2;
-        currentResult = p1.ToString() == "x1^2";
+        currentResult = p1.toString() == "x1^2";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -547,7 +548,7 @@ bool RunTestGroup4()
         ++currentTestNumber;
         Polynom p1("x1*x2 + x4"), p2("x1*x2 + x4");
         p1 += p2;
-        currentResult = p1.ToString() == "0" && p1.IsZero();
+        currentResult = p1.toString() == "0" && p1.isZero();
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -571,7 +572,7 @@ bool RunTestGroup4()
     return result;
 }
 
-bool RunTestGroup5()
+bool runTestGroup5()
 {
     const int groupNumber = 5;
     int currentTestNumber = 0;
@@ -582,8 +583,8 @@ bool RunTestGroup5()
     {
         ++currentTestNumber;
         Polynom p1("x3^3 + x1*x2 + x2 + x5");
-        p1.Multiply(2, 2);
-        currentResult = p1.ToString() == "x2^2*x3^3 + x1*x2^3 + x2^3 + x2^2*x5";
+        p1.multiply(2, 2);
+        currentResult = p1.toString() == "x2^2*x3^3 + x1*x2^3 + x2^3 + x2^2*x5";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -599,8 +600,8 @@ bool RunTestGroup5()
     {
         ++currentTestNumber;
         Polynom p1("x3^3 + x1*x2 + x2 + x5");
-        p1.Multiply(1, 1);
-        currentResult = p1.ToString() == "x1*x3^3 + x1^2*x2 + x1*x2 + x1*x5";
+        p1.multiply(1, 1);
+        currentResult = p1.toString() == "x1*x3^3 + x1^2*x2 + x1*x2 + x1*x5";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -617,8 +618,8 @@ bool RunTestGroup5()
         ++currentTestNumber;
         Polynom p1("x3^3 + x1*x2 + x5 + x2");
         Monom m1("x1*x2");
-        p1.Multiply(m1);
-        currentResult = p1.ToString() == "x1*x2*x3^3 + x1^2*x2^2 + x1*x2^2 + x1*x2*x5";
+        p1.multiply(m1);
+        currentResult = p1.toString() == "x1*x2*x3^3 + x1^2*x2^2 + x1*x2^2 + x1*x2*x5";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -634,8 +635,8 @@ bool RunTestGroup5()
     {
         ++currentTestNumber;
         Polynom p1("x3^3 + x1*x2 + x5 + x2"), p2("x1 + x2");
-        p1.Multiply(p2);
-        currentResult = p1.ToString() == "x1*x3^3 + x2*x3^3 + x1^2*x2 + x1*x2^2 + x1*x2 + x2^2 + x1*x5 + x2*x5";
+        p1.multiply(p2);
+        currentResult = p1.toString() == "x1*x3^3 + x2*x3^3 + x1^2*x2 + x1*x2^2 + x1*x2 + x2^2 + x1*x5 + x2*x5";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -651,8 +652,8 @@ bool RunTestGroup5()
     {
         ++currentTestNumber;
         Polynom p1("x1 + x2"), p2("x1 + x2");
-        p1.Multiply(p2);
-        currentResult = p1.ToString() == "x1^2 + x2^2";
+        p1.multiply(p2);
+        currentResult = p1.toString() == "x1^2 + x2^2";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -676,7 +677,7 @@ bool RunTestGroup5()
     return result;
 }
 
-bool RunTestGroup6()
+bool runTestGroup6()
 {
     const int groupNumber = 6;
     int currentTestNumber = 0;
@@ -762,7 +763,7 @@ bool RunTestGroup6()
     {
         ++currentTestNumber;
         Polynom p1("x1*x2 + x2*x3 + x5"), p2("x1*x2 + x2 + x4");
-        currentResult = Polynom::Compare(p1, p2) == 1;
+        currentResult = Polynom::compare(p1, p2) == 1;
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -777,7 +778,7 @@ bool RunTestGroup6()
     {
         ++currentTestNumber;
         Polynom p1("x1*x2 + x2*x5 + x5"), p2("x1*x2*x3 + x2*x3 + x4");
-        currentResult = Polynom::Compare(p1, p2) == -1;
+        currentResult = Polynom::compare(p1, p2) == -1;
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -792,7 +793,7 @@ bool RunTestGroup6()
     {
         ++currentTestNumber;
         Polynom p1("x1*x2 + x2*x5 + x5"), p2("x2*x5 + x5 + x1*x2");
-        currentResult = Polynom::Compare(p1, p2) == 0;
+        currentResult = Polynom::compare(p1, p2) == 0;
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -815,7 +816,7 @@ bool RunTestGroup6()
     return result;
 }
 
-bool RunTestGroup7()
+bool runTestGroup7()
 {
     const int groupNumber = 7;
     int currentTestNumber = 0;
@@ -826,8 +827,8 @@ bool RunTestGroup7()
     {
         ++currentTestNumber;
         Polynom p1("x1^2*x2 + x2 + x5"), p2("x1 + x2");
-        p1.Reduction(p2);
-        currentResult = p1.ToString() == "x2^3 + x2 + x5";
+        p1.reduction(p2);
+        currentResult = p1.toString() == "x2^3 + x2 + x5";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -842,8 +843,8 @@ bool RunTestGroup7()
     {
         ++currentTestNumber;
         Polynom p1("x1^2*x2 + x1 + x2 + x5"), p2("x1 + x2");
-        p1.HeadReduction(p2);
-        currentResult = p1.ToString() == "x2^3 + x1 + x2 + x5";
+        p1.headReduction(p2);
+        currentResult = p1.toString() == "x2^3 + x1 + x2 + x5";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -868,15 +869,15 @@ bool RunTestGroup7()
 
 int main()
 {
-    SetVariables();
+    setVariables();
 
-    bool result = RunTestGroup1();
-    result = result && RunTestGroup2();
-    result = result && RunTestGroup3();
-    result = result && RunTestGroup4();
-    result = result && RunTestGroup5();
-    result = result && RunTestGroup6();
-    result = result && RunTestGroup7();
+    bool result = runTestGroup1();
+    result = result && runTestGroup2();
+    result = result && runTestGroup3();
+    result = result && runTestGroup4();
+    result = result && runTestGroup5();
+    result = result && runTestGroup6();
+    result = result && runTestGroup7();
 
     if (result)
     {

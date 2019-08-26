@@ -1,40 +1,39 @@
-#ifndef GROEBNER_BASIS_H
-#define GROEBNER_BASIS_H
+#pragma once
 
-#include <list>
 #include "qset.h"
 #include "tset.h"
+
+#include <list>
+
 
 class GroebnerBasis
 {
 public:
-    GroebnerBasis();
     ~GroebnerBasis();
 
-    void Construct(const std::list<Polynom*>& set);
+    void construct(const std::list<Polynom*>& set);
 
     const Polynom& operator[](int number) const;
-    unsigned Length() const;
+    unsigned length() const;
 
     friend std::ostream& operator<<(std::ostream& out, const GroebnerBasis& groebnerBasis);
 
 private:
-    bool Criterion1(const Triple* p, const Triple* g) const;
-    bool Criterion2(const Triple* p, const Triple* g) const;
-    bool Criterion3(const Triple* p, const Triple* g) const;
-    bool Criterion4(const Triple* p, const Triple* g) const;
-    Polynom* NormalForm(const Triple* triple) const;
+    bool criterion1(const Triple* p, const Triple* g) const;
+    bool criterion2(const Triple* p, const Triple* g) const;
+    bool criterion3(const Triple* p, const Triple* g) const;
+    bool criterion4(const Triple* p, const Triple* g) const;
 
-    const Polynom* FindDivisor(const Polynom* polynom, const std::list<Polynom*>& set) const;
-    Polynom* Reduce(Polynom* polynom, const std::list<Polynom*>& set) const;
-    void ReduceSet();
-    void ConstructInvolutiveBasis();
-    void Reset();
+    Polynom* normalForm(const Triple* triple) const;
+
+    const Polynom* findDivisor(const Polynom* polynom, const std::list<Polynom*>& set) const;
+    Polynom* reduce(Polynom* polynom, const std::list<Polynom*>& set) const;
+    void reduceSet();
+    void constructInvolutiveBasis();
+    void reset();
 
 private:
-    std::list<Polynom*> GBasis;
-    TSet IntermediateBasis;
-    QSet ProlongationsSet;
+    std::list<Polynom*> gBasis_;
+    TSet intermediateBasis_;
+    QSet prolongationsSet_;
 };
-
-#endif // GROEBNER_BASIS_H

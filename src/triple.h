@@ -1,109 +1,108 @@
-#ifndef TRIPLE_H
-#define TRIPLE_H
+#pragma once
 
-#include <set>
 #include "fast_allocator.h"
 #include "polynom.h"
+
+#include <set>
+
 
 class Triple
 {
 public:
     Triple(Polynom* initialPolynom);
 
-    Triple(Polynom* initialPolynom
-         , const Triple* initialAncestor
-         , const std::set<Monom::Integer>& initialNmp
-         , const Triple* weakAncestor
-         , Monom::Integer nmVar);
+    Triple(Polynom* initialPolynom,
+           const Triple* initialAncestor,
+           const std::set<Monom::Integer>& initialNmp,
+           const Triple* weakAncestor,
+           Monom::Integer nmVar);
 
     ~Triple();
 
     void* operator new(std::size_t);
-    void operator delete(void *ptr);
+    void operator delete(void* ptr);
 
-    const Polynom* GetPolynom() const;
-    const Monom& GetPolynomLm() const;
-    const Triple* GetAncestor() const;
-    const Triple* GetWeakAncestor() const;
-    Monom::Integer GetVariable() const;
-    const std::set<Monom::Integer>& GetNmp() const;
+    const Polynom* polynom() const;
+    const Monom& polynomLm() const;
+    const Triple* ancestor() const;
+    const Triple* weakAncestor() const;
+    Monom::Integer variable() const;
+    const std::set<Monom::Integer>& nmp() const;
 
-    void SetNmp(const std::set<Monom::Integer>& newNmp);
-    void SetNmp(Monom::Integer variable);
-    bool TestNmp(Monom::Integer variable) const;
+    void setNmp(const std::set<Monom::Integer>& newNmp);
+    void setNmp(Monom::Integer variable);
+    bool testNmp(Monom::Integer variable) const;
 
-    static bool Compare(const Triple* tripleA, const Triple* tripleB);
+    static bool compare(const Triple* tripleA, const Triple* tripleB);
 
 private:
-    static FastAllocator Allocator;
+    static FastAllocator allocator_;
 
-    const Monom* Lm;
-    Polynom* Polynomial;
-    const Triple* Ancestor;
-    const Triple* WeakAncestor;
-    std::set<Monom::Integer> Nmp;
-    const Monom::Integer Variable;
+    const Monom* lm_ = nullptr;
+    Polynom* polynomial_ = nullptr;
+    const Triple* ancestor_ = nullptr;
+    const Triple* weakAncestor_ = nullptr;
+    std::set<Monom::Integer> nmp_;
+    const Monom::Integer variable_ = -1;
 };
 
 
 inline Triple::~Triple()
 {
-    delete Polynomial;
+    delete polynomial_;
 }
 
 inline void* Triple::operator new(std::size_t)
 {
-    return Allocator.Allocate();
+    return allocator_.allocate();
 }
 
 inline void Triple::operator delete(void *ptr)
 {
-    Allocator.Free(ptr);
+    allocator_.free(ptr);
 }
 
-inline const Polynom* Triple::GetPolynom() const
+inline const Polynom* Triple::polynom() const
 {
-    return Polynomial;
+    return polynomial_;
 }
 
-inline const Monom& Triple::GetPolynomLm() const
+inline const Monom& Triple::polynomLm() const
 {
-    return *Lm;
+    return *lm_;
 }
 
-inline const Triple* Triple::GetAncestor() const
+inline const Triple* Triple::ancestor() const
 {
-    return Ancestor;
+    return ancestor_;
 }
 
-inline const Triple* Triple::GetWeakAncestor() const
+inline const Triple* Triple::weakAncestor() const
 {
-    return WeakAncestor;
+    return weakAncestor_;
 }
 
-inline Monom::Integer Triple::GetVariable() const
+inline Monom::Integer Triple::variable() const
 {
-    return Variable;
+    return variable_;
 }
 
-inline const std::set<Monom::Integer>& Triple::GetNmp() const
+inline const std::set<Monom::Integer>& Triple::nmp() const
 {
-    return Nmp;
+    return nmp_;
 }
 
-inline void Triple::SetNmp(const std::set<Monom::Integer>& newNmp)
+inline void Triple::setNmp(const std::set<Monom::Integer>& newNmp)
 {
-    Nmp = newNmp;
+    nmp_ = newNmp;
 }
 
-inline void Triple::SetNmp(Monom::Integer var)
+inline void Triple::setNmp(Monom::Integer var)
 {
-    Nmp.insert(var);
+    nmp_.insert(var);
 }
 
-inline bool Triple::TestNmp(Monom::Integer var) const
+inline bool Triple::testNmp(Monom::Integer var) const
 {
-    return Nmp.count(var);
+    return nmp_.count(var);
 }
-
-#endif // TRIPLE_H

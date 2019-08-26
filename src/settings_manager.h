@@ -1,67 +1,63 @@
-#ifndef SETTINGS_MANAGER_H
-#define SETTINGS_MANAGER_H
+#pragma once
+
 
 class Launcher;
 
 class SettingsManager
 {
 public:
-    ~SettingsManager();
+    SettingsManager(const SettingsManager&) = delete;
+    SettingsManager& operator=(const SettingsManager&) = delete;
 
-    bool GetCollectStatistics() const;
-    bool GetUseNovaInvolution() const;
-    bool GetPrintAnswer() const;
-    bool GetPrintVersion() const;
-    bool GetPrintHelp() const;
+    bool collectStatistics() const;
+    bool printAnswer() const;
+    bool printVersion() const;
+    bool printHelp() const;
 
 private:
-    SettingsManager();
-    SettingsManager(const SettingsManager&);
-    SettingsManager& operator=(const SettingsManager&);
+    SettingsManager() = default;
 
-    void SetCollectStatisticsEnabled();
-    void SetCollectStatisticsDisabled();
+    void setCollectStatisticsEnabled();
+    void setCollectStatisticsDisabled();
 
-    void SetPrintAnswerEnabled();
-    void SetPrintAnswerDisabled();
+    void setPrintAnswerEnabled();
+    void setPrintAnswerDisabled();
 
-    void SetPrintVersionEnabled();
-    void SetPrintVersionDisabled();
+    void setPrintVersionEnabled();
+    void setPrintVersionDisabled();
 
-    void SetPrintHelpEnabled();
-    void SetPrintHelpDisabled();
+    void setPrintHelpEnabled();
+    void setPrintHelpDisabled();
 
-    friend SettingsManager& GetSettingsManager();
+    friend SettingsManager& getSettingsManager();
     friend class Launcher;
 
 private:
-    bool CollectStatistics;
-    bool PrintAnswer;
-    bool PrintVersion;
-    bool PrintHelp;
+    bool collectStatistics_ = false;
+    bool printAnswer_ = false;
+    bool printVersion_ = false;
+    bool printHelp_ = false;
 };
 
-SettingsManager& GetSettingsManager();
+SettingsManager& getSettingsManager();
 
 
-inline bool SettingsManager::GetCollectStatistics() const
+inline bool SettingsManager::collectStatistics() const
 {
-    return CollectStatistics;
+    return collectStatistics_;
 }
 
-inline bool SettingsManager::GetPrintAnswer() const
+inline bool SettingsManager::printAnswer() const
 {
-    return PrintAnswer;
+    return printAnswer_;
 }
 
-inline bool SettingsManager::GetPrintVersion() const
+inline bool SettingsManager::printVersion() const
 {
-    return PrintVersion;
+    return printVersion_;
 }
 
-inline bool SettingsManager::GetPrintHelp() const
+inline bool SettingsManager::printHelp() const
 {
-    return PrintHelp;
+    return printHelp_;
 }
-
-#endif // SETTINGS_MANAGER_H

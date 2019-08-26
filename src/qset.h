@@ -1,70 +1,63 @@
-#ifndef QSET_H
-#define QSET_H
+#pragma once
+
+#include "triple.h"
 
 #include <list>
-#include "triple.h"
+
 
 class QSet
 {
 public:
-    QSet();
+    QSet() = default;
     QSet(const std::list<Polynom*>& basis);
     ~QSet();
 
-    void Insert(std::list<Polynom*>& addList);
-    void Insert(std::list<Triple*>& addList);
+    void insert(const std::list<Polynom*>& addList);
+    void insert(std::list<Triple*>& addList);
 
-    Triple* Get();
+    Triple* get();
 
-    void Clear();
-    bool Empty() const;
-    std::size_t Size() const;
-    void DeleteDescendants(const Triple* ancestor);
+    void clear();
+    bool empty() const;
+    std::size_t size() const;
+    void deleteDescendants(const Triple* ancestor);
 
 private:
-    std::list<Triple*> TripleList;
+    std::list<Triple*> tripleList_;
 };
 
-inline QSet::QSet()
-    : TripleList()
-{
-}
-
 inline QSet::QSet(const std::list<Polynom*>& basis)
-    : TripleList()
 {
     std::list<Polynom*>::const_iterator itBasis(basis.begin());
     while (itBasis != basis.end())
     {
         if (*itBasis)
         {
-            TripleList.push_back(new Triple(*itBasis));
+            tripleList_.push_back(new Triple(*itBasis));
         }
         ++itBasis;
     }
-    TripleList.sort(Triple::Compare);
+    tripleList_.sort(Triple::compare);
 }
 
 inline QSet::~QSet()
 {
-    Clear();
+    clear();
 }
 
-inline Triple* QSet::Get()
+inline Triple* QSet::get()
 {
-    Triple* result = TripleList.back();
-    TripleList.pop_back();
+    Triple* result = tripleList_.back();
+    tripleList_.pop_back();
     return result;
 }
 
-inline bool QSet::Empty() const
+inline bool QSet::empty() const
 {
-    return TripleList.empty();
+    return tripleList_.empty();
 }
 
-inline std::size_t QSet::Size() const
+inline std::size_t QSet::size() const
 {
-    return TripleList.size();
+    return tripleList_.size();
 }
-
-#endif // QSET_H

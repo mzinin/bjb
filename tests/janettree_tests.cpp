@@ -4,17 +4,18 @@
 #include <iostream>
 #include <set>
 
-void SetVariables()
+
+void setVariables()
 {
-    Monom::AddVariable("x0");
-    Monom::AddVariable("x1");
-    Monom::AddVariable("x2");
-    Monom::AddVariable("x3");
-    Monom::AddVariable("x4");
-    Monom::AddVariable("x5");
+    Monom::addVariable("x0");
+    Monom::addVariable("x1");
+    Monom::addVariable("x2");
+    Monom::addVariable("x3");
+    Monom::addVariable("x4");
+    Monom::addVariable("x5");
 }
 
-bool RunTestGroup1()
+bool runTestGroup1()
 {
     const int groupNumber = 1;
     int currentTestNumber = 0;
@@ -27,11 +28,11 @@ bool RunTestGroup1()
         Triple t1(new Polynom("x1^2*x3 + x1")), t2(new Polynom("x1*x2 + x2")), t3(new Polynom("x1*x3^2 + x3"));
 
         JanetTree jTree;
-        jTree.Insert(&t1);
-        jTree.Insert(&t2);
-        jTree.Insert(&t3);
+        jTree.insert(&t1);
+        jTree.insert(&t2);
+        jTree.insert(&t3);
 
-        std::set<Monom::Integer> nmv = jTree.NonMulti(&t1);
+        std::set<Monom::Integer> nmv = jTree.nonMulti(&t1);
 
         currentResult = nmv.empty();
         if (currentResult)
@@ -51,11 +52,11 @@ bool RunTestGroup1()
         Triple t1(new Polynom("x1^2*x3 + x1")), t2(new Polynom("x1*x2 + x2")), t3(new Polynom("x1*x3^2 + x3"));
 
         JanetTree jTree;
-        jTree.Insert(&t1);
-        jTree.Insert(&t2);
-        jTree.Insert(&t3);
+        jTree.insert(&t1);
+        jTree.insert(&t2);
+        jTree.insert(&t3);
 
-        std::set<Monom::Integer> nmv = jTree.NonMulti(&t2);
+        std::set<Monom::Integer> nmv = jTree.nonMulti(&t2);
         currentResult = nmv.size() == 1 && nmv.count(1);
         if (currentResult)
         {
@@ -74,11 +75,11 @@ bool RunTestGroup1()
         Triple t1(new Polynom("x1^2*x3 + x1")), t2(new Polynom("x1*x2 + x2")), t3(new Polynom("x1*x3^2 + x3"));
 
         JanetTree jTree;
-        jTree.Insert(&t1);
-        jTree.Insert(&t2);
-        jTree.Insert(&t3);
+        jTree.insert(&t1);
+        jTree.insert(&t2);
+        jTree.insert(&t3);
 
-        std::set<Monom::Integer> nmv = jTree.NonMulti(&t3);
+        std::set<Monom::Integer> nmv = jTree.nonMulti(&t3);
 
         currentResult = nmv.size() == 2 && nmv.count(1) && nmv.count(2);
         if (currentResult)
@@ -104,7 +105,7 @@ bool RunTestGroup1()
     return result;
 }
 
-bool RunTestGroup2()
+bool runTestGroup2()
 {
     const int groupNumber = 2;
     int currentTestNumber = 0;
@@ -117,14 +118,14 @@ bool RunTestGroup2()
         Triple t1(new Polynom("x0^2")), t2(new Polynom("x1^2")), t3(new Polynom("x2^2"));
 
         JanetTree jTree;
-        jTree.Insert(&t1);
-        jTree.Insert(&t2);
-        jTree.Insert(&t3);
+        jTree.insert(&t1);
+        jTree.insert(&t2);
+        jTree.insert(&t3);
 
         Monom m1("x1^2*x2^2");
-        const Triple* found = jTree.Find(m1);
+        const Triple* found = jTree.find(m1);
 
-        currentResult = found && found->GetPolynomLm().ToString() == "x1^2";
+        currentResult = found && found->polynomLm().toString() == "x1^2";
         if (currentResult)
         {
             std::cout << "\tTest " << groupNumber << "-" << currentTestNumber << " succeded." << std::endl;
@@ -132,7 +133,7 @@ bool RunTestGroup2()
         else
         {
             std::cerr << "\t\tTest " << groupNumber << "-" << currentTestNumber << " failed." << std::endl;
-            std::cerr << "\t\found->GetPolynomLm() = " << found->GetPolynomLm() << std::endl;
+            std::cerr << "\t\found->polynomLm() = " << found->polynomLm() << std::endl;
         }
         result = result && currentResult;
     }
@@ -150,10 +151,10 @@ bool RunTestGroup2()
 
 int main()
 {
-    SetVariables();
+    setVariables();
 
-    bool result = RunTestGroup1();
-    result = result && RunTestGroup2();
+    bool result = runTestGroup1();
+    result = result && runTestGroup2();
 
     if (result)
     {

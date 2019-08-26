@@ -1,22 +1,23 @@
-#ifndef PCOMPARATOR_H
-#define PCOMPARATOR_H
+#pragma once
 
-template<class T> class PointerLessComparator
+
+template <class T>
+class PointerLessComparator
 {
 public:
-    bool operator() (const T* const& p1, const T* const& p2)
+    bool operator() (const T* const p1, const T* const p2)
     {
         return *p1 < *p2;
     }
 };
 
-template<class T> class PointerMoreComparator
-{
-    public:
-        bool operator() (const T* const& p1, const T* const& p2)
-        {
-            return *p1 > *p2;
-        }
-};
 
-#endif //PCONPARATOR_H
+template <class T>
+class PointerGreaterComparator
+{
+public:
+    bool operator() (const T* const p1, const T* const p2)
+    {
+        return *p1 > *p2;
+    }
+};

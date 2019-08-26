@@ -1,50 +1,48 @@
 #include "qset.h"
 
-void QSet::Insert(std::list<Polynom*>& addList)
+
+void QSet::insert(const std::list<Polynom*>& addList)
 {
     std::list<Polynom*>::const_iterator itBasis(addList.begin());
-    while ( itBasis != addList.end() )
+    while (itBasis != addList.end())
     {
         if (*itBasis)
         {
-            TripleList.push_back(new Triple(*itBasis));
+            tripleList_.push_back(new Triple(*itBasis));
         }
         ++itBasis;
     }
-    TripleList.sort(Triple::Compare);
+    tripleList_.sort(Triple::compare);
 }
 
-void QSet::Insert(std::list<Triple*>& addList)
+void QSet::insert(std::list<Triple*>& addList)
 {
-    addList.sort(Triple::Compare);
-    TripleList.merge(addList, Triple::Compare);
+    addList.sort(Triple::compare);
+    tripleList_.merge(addList, Triple::compare);
 }
 
-void QSet::Clear()
+void QSet::clear()
 {
-    std::list<Triple*>::iterator it(TripleList.begin());
-    while (it != TripleList.end())
+    for (auto* item : tripleList_)
     {
-        delete *it;
-        ++it;
+        delete item;
     }
-    TripleList.clear();
+    tripleList_.clear();
 }
 
-void QSet::DeleteDescendants(const Triple* ancestor)
+void QSet::deleteDescendants(const Triple* ancestor)
 {
     if (!ancestor)
     {
         return;
     }
 
-    std::list<Triple*>::iterator it(TripleList.begin());
-    while ( it != TripleList.end() )
+    for (auto it = tripleList_.begin(); it != tripleList_.end();)
     {
-        if ((**it).GetAncestor() == ancestor || (**it).GetWeakAncestor() == ancestor)
+        if ((**it).ancestor() == ancestor || (**it).weakAncestor() == ancestor)
         {
             delete *it;
-            it = TripleList.erase(it);
+            it = tripleList_.erase(it);
         }
         else
         {

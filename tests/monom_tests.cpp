@@ -3,24 +3,25 @@
 #include <cstdlib>
 #include <iostream>
 
-void SetVariables()
+
+void setVariables()
 {
-    Monom::AddVariable("x0");
-    Monom::AddVariable("x1");
-    Monom::AddVariable("x2");
-    Monom::AddVariable("x3");
-    Monom::AddVariable("x4");
-    Monom::AddVariable("x5");
+    Monom::addVariable("x0");
+    Monom::addVariable("x1");
+    Monom::addVariable("x2");
+    Monom::addVariable("x3");
+    Monom::addVariable("x4");
+    Monom::addVariable("x5");
 }
 
-bool RunTestGroup1()
+bool runTestGroup1()
 {
     std::cout << "***** Running test group 1 *****" << std::endl;
     bool result = true, currentResult = false;
 
 
     Monom m1("x1");
-    currentResult = m1.ToString() == "x1";
+    currentResult = m1.toString() == "x1";
     if (currentResult)
     {
         std::cout << "\tTest 1-1 succeded." << std::endl;
@@ -34,7 +35,7 @@ bool RunTestGroup1()
 
 
     Monom m2("x2^2");
-    currentResult = m2.ToString() == "x2^2";
+    currentResult = m2.toString() == "x2^2";
     if (currentResult)
     {
         std::cout << "\tTest 1-2 succeded." << std::endl;
@@ -48,7 +49,7 @@ bool RunTestGroup1()
 
 
     Monom m3("x1*x2");
-    currentResult = m3.ToString() == "x1*x2";
+    currentResult = m3.toString() == "x1*x2";
     if (currentResult)
     {
         std::cout << "\tTest 1-3 succeded." << std::endl;
@@ -62,7 +63,7 @@ bool RunTestGroup1()
 
 
     Monom m4;
-    currentResult = m4.ToString() == "1";
+    currentResult = m4.toString() == "1";
     if (currentResult)
     {
         std::cout << "\tTest 1-4 succeded." << std::endl;
@@ -76,7 +77,7 @@ bool RunTestGroup1()
 
 
     Monom m5(m3);
-    currentResult = m5.ToString() == "x1*x2";
+    currentResult = m5.toString() == "x1*x2";
     if (currentResult)
     {
         std::cout << "\tTest 1-5 succeded." << std::endl;
@@ -100,14 +101,14 @@ bool RunTestGroup1()
     return result;
 }
 
-bool RunTestGroup2()
+bool runTestGroup2()
 {
     std::cout << "***** Running test group 2 *****" << std::endl;
     bool result = true, currentResult = false;
 
 
     Monom* m1 = new Monom("x1*x2*x3*x4^2");
-    currentResult = m1 && m1->ToString() == "x1*x2*x3*x4^2";
+    currentResult = m1 && m1->toString() == "x1*x2*x3*x4^2";
     if (currentResult)
     {
         std::cout << "\tTest 2-1 succeded." << std::endl;
@@ -136,8 +137,8 @@ bool RunTestGroup2()
 
 
     Monom m3("x1*x2");
-    m3.SetOne();
-    currentResult = m3.ToString() == "1";
+    m3.setOne();
+    currentResult = m3.toString() == "1";
     if (currentResult)
     {
         std::cout << "\tTest 2-3 succeded." << std::endl;
@@ -151,7 +152,7 @@ bool RunTestGroup2()
 
 
     Monom m4("x2*x3^2*x5"), m5("x2*x3*x5");
-    currentResult = m4.Degree() == 4 && m5.Degree() == 3;
+    currentResult = m4.degree() == 4 && m5.degree() == 3;
     if (currentResult)
     {
         std::cout << "\tTest 2-4 succeded." << std::endl;
@@ -159,7 +160,7 @@ bool RunTestGroup2()
     else
     {
         std::cerr << "\t\tTest 2-4 failed." << std::endl;
-        std::cout << "\t\tm4.Degree() = " << m4.Degree() << "; m5.Degree() = " << m5.Degree() << std::endl;
+        std::cout << "\t\tm4.degree() = " << m4.degree() << "; m5.degree() = " << m5.degree() << std::endl;
     }
     result = result && currentResult;
 
@@ -189,7 +190,7 @@ bool RunTestGroup2()
     return result;
 }
 
-bool RunTestGroup3()
+bool runTestGroup3()
 {
     std::cout << "***** Running test group 3 *****" << std::endl;
     bool result = true, currentResult = false;
@@ -197,7 +198,7 @@ bool RunTestGroup3()
 
     Monom m1("x1*x2*x3*x4^2"), m2("x1*x2");
     m1 = m2;
-    currentResult = m1.ToString() == "x1*x2";
+    currentResult = m1.toString() == "x1*x2";
     if (currentResult)
     {
         std::cout << "\tTest 3-1 succeded." << std::endl;
@@ -273,15 +274,15 @@ bool RunTestGroup3()
     return result;
 }
 
-bool RunTestGroup4()
+bool runTestGroup4()
 {
     std::cout << "***** Running test group 4 *****" << std::endl;
     bool result = true, currentResult = false;
 
     {
         Monom m1("x1*x4");
-        m1.Prolong(1);
-        currentResult = m1.ToString() == "x1^2*x4" && m1.Degree() == 3;
+        m1.prolong(1);
+        currentResult = m1.toString() == "x1^2*x4" && m1.degree() == 3;
         if (currentResult)
         {
             std::cout << "\tTest 4-1 succeded." << std::endl;
@@ -289,15 +290,15 @@ bool RunTestGroup4()
         else
         {
             std::cerr << "\t\tTest 4-1 failed." << std::endl;
-            std::cerr << "\t\tm1 = " << m1 << "; m1.Degree() = " << m1.Degree() << std::endl;
+            std::cerr << "\t\tm1 = " << m1 << "; m1.degree() = " << m1.degree() << std::endl;
         }
         result = result && currentResult;
     }
 
     {
         Monom m1("x1*x4");
-        m1.Prolong(1, 2);
-        currentResult = m1.ToString() == "x1^3*x4" && m1.Degree() == 4;
+        m1.prolong(1, 2);
+        currentResult = m1.toString() == "x1^3*x4" && m1.degree() == 4;
         if (currentResult)
         {
             std::cout << "\tTest 4-2 succeded." << std::endl;
@@ -305,15 +306,15 @@ bool RunTestGroup4()
         else
         {
             std::cerr << "\t\tTest 4-2 failed." << std::endl;
-            std::cerr << "\t\tm1 = " << m1 << "; m1.Degree() = " << m1.Degree() << std::endl;
+            std::cerr << "\t\tm1 = " << m1 << "; m1.degree() = " << m1.degree() << std::endl;
         }
         result = result && currentResult;
     }
 
     {
         Monom m1("x1*x4");
-        m1.Prolong(2);
-        currentResult = m1.ToString() == "x1*x2*x4" && m1.Degree() == 3;
+        m1.prolong(2);
+        currentResult = m1.toString() == "x1*x2*x4" && m1.degree() == 3;
         if (currentResult)
         {
             std::cout << "\tTest 4-3 succeded." << std::endl;
@@ -321,15 +322,15 @@ bool RunTestGroup4()
         else
         {
             std::cerr << "\t\tTest 4-3 failed." << std::endl;
-            std::cerr << "\t\tm1 = " << m1 << "; m1.Degree() = " << m1.Degree() << std::endl;
+            std::cerr << "\t\tm1 = " << m1 << "; m1.degree() = " << m1.degree() << std::endl;
         }
         result = result && currentResult;
     }
 
     {
         Monom m1("x1*x4");
-        m1.Prolong(2, 2);
-        currentResult = m1.ToString() == "x1*x2^2*x4" && m1.Degree() == 4;
+        m1.prolong(2, 2);
+        currentResult = m1.toString() == "x1*x2^2*x4" && m1.degree() == 4;
         if (currentResult)
         {
             std::cout << "\tTest 4-4 succeded." << std::endl;
@@ -337,7 +338,7 @@ bool RunTestGroup4()
         else
         {
             std::cerr << "\t\tTest 4-4 failed." << std::endl;
-            std::cerr << "\t\tm1 = " << m1 << "; m1.Degree() = " << m1.Degree() << std::endl;
+            std::cerr << "\t\tm1 = " << m1 << "; m1.degree() = " << m1.degree() << std::endl;
         }
         result = result && currentResult;
     }
@@ -353,15 +354,15 @@ bool RunTestGroup4()
     return result;
 }
 
-bool RunTestGroup5()
+bool runTestGroup5()
 {
     std::cout << "***** Running test group 5 *****" << std::endl;
     bool result = true, currentResult = false;
 
     {
         Monom m1("x1*x4"), m2("x2*x3");
-        m1.Multiply(m2);
-        currentResult = m1.ToString() == "x1*x2*x3*x4" && m1.Degree() == 4;
+        m1.multiply(m2);
+        currentResult = m1.toString() == "x1*x2*x3*x4" && m1.degree() == 4;
         if (currentResult)
         {
             std::cout << "\tTest 5-1 succeded." << std::endl;
@@ -369,15 +370,15 @@ bool RunTestGroup5()
         else
         {
             std::cerr << "\t\tTest 5-1 failed." << std::endl;
-            std::cerr << "\t\tm1 = " << m1 << "; m1.Degree() = " << m1.Degree() << std::endl;
+            std::cerr << "\t\tm1 = " << m1 << "; m1.degree() = " << m1.degree() << std::endl;
         }
         result = result && currentResult;
     }
 
     {
         Monom m1("x1*x4"), m2("x1*x3");
-        m1.Multiply(m2);
-        currentResult = m1.ToString() == "x1^2*x3*x4" && m1.Degree() == 4;
+        m1.multiply(m2);
+        currentResult = m1.toString() == "x1^2*x3*x4" && m1.degree() == 4;
         if (currentResult)
         {
             std::cout << "\tTest 5-2 succeded." << std::endl;
@@ -385,15 +386,15 @@ bool RunTestGroup5()
         else
         {
             std::cerr << "\t\tTest 5-2 failed." << std::endl;
-            std::cerr << "\t\tm1 = " << m1 << "; m1.Degree() = " << m1.Degree() << std::endl;
+            std::cerr << "\t\tm1 = " << m1 << "; m1.degree() = " << m1.degree() << std::endl;
         }
         result = result && currentResult;
     }
 
     {
         Monom m1("x1*x4"), m2("x2*x4^2");
-        m1.Multiply(m2);
-        currentResult = m1.ToString() == "x1*x2*x4^3" && m1.Degree() == 5;
+        m1.multiply(m2);
+        currentResult = m1.toString() == "x1*x2*x4^3" && m1.degree() == 5;
         if (currentResult)
         {
             std::cout << "\tTest 5-3 succeded." << std::endl;
@@ -401,7 +402,7 @@ bool RunTestGroup5()
         else
         {
             std::cerr << "\t\tTest 5-3 failed." << std::endl;
-            std::cerr << "\t\tm1 = " << m1 << "; m1.Degree() = " << m1.Degree() << std::endl;
+            std::cerr << "\t\tm1 = " << m1 << "; m1.degree() = " << m1.degree() << std::endl;
         }
         result = result && currentResult;
     }
@@ -417,15 +418,15 @@ bool RunTestGroup5()
     return result;
 }
 
-bool RunTestGroup6()
+bool runTestGroup6()
 {
     std::cout << "***** Running test group 6 *****" << std::endl;
     bool result = true, currentResult = false;
 
     {
         Monom m1("x1^2*x3*x4"), m2("x1");
-        m1.Divide(m2);
-        currentResult = m1.ToString() == "x1*x3*x4" && m1.Degree() == 3;
+        m1.divide(m2);
+        currentResult = m1.toString() == "x1*x3*x4" && m1.degree() == 3;
         if (currentResult)
         {
             std::cout << "\tTest 6-1 succeded." << std::endl;
@@ -433,15 +434,15 @@ bool RunTestGroup6()
         else
         {
             std::cerr << "\t\tTest 6-1 failed." << std::endl;
-            std::cerr << "\t\tm1 = " << m1 << "; m1.Degree() = " << m1.Degree() << std::endl;
+            std::cerr << "\t\tm1 = " << m1 << "; m1.degree() = " << m1.degree() << std::endl;
         }
         result = result && currentResult;
     }
 
     {
         Monom m1("x1^2*x3*x4"), m2("x1^2");
-        m1.Divide(m2);
-        currentResult = m1.ToString() == "x3*x4" && m1.Degree() == 2;
+        m1.divide(m2);
+        currentResult = m1.toString() == "x3*x4" && m1.degree() == 2;
         if (currentResult)
         {
             std::cout << "\tTest 6-2 succeded." << std::endl;
@@ -449,15 +450,15 @@ bool RunTestGroup6()
         else
         {
             std::cerr << "\t\tTest 6-2 failed." << std::endl;
-            std::cerr << "\t\tm1 = " << m1 << "; m1.Degree() = " << m1.Degree() << std::endl;
+            std::cerr << "\t\tm1 = " << m1 << "; m1.degree() = " << m1.degree() << std::endl;
         }
         result = result && currentResult;
     }
 
     {
         Monom m1("x1^2*x3*x4"), m2("x1^2*x4");
-        m1.Divide(m2);
-        currentResult = m1.ToString() == "x3" && m1.Degree() == 1;
+        m1.divide(m2);
+        currentResult = m1.toString() == "x3" && m1.degree() == 1;
         if (currentResult)
         {
             std::cout << "\tTest 6-3 succeded." << std::endl;
@@ -465,15 +466,15 @@ bool RunTestGroup6()
         else
         {
             std::cerr << "\t\tTest 6-3 failed." << std::endl;
-            std::cerr << "\t\tm1 = " << m1 << "; m1.Degree() = " << m1.Degree() << std::endl;
+            std::cerr << "\t\tm1 = " << m1 << "; m1.degree() = " << m1.degree() << std::endl;
         }
         result = result && currentResult;
     }
 
     {
         Monom m1("x1*x3*x4"), m2("x3*x4");
-        m1.Divide(m2);
-        currentResult = m1.ToString() == "x1" && m1.Degree() == 1;
+        m1.divide(m2);
+        currentResult = m1.toString() == "x1" && m1.degree() == 1;
         if (currentResult)
         {
             std::cout << "\tTest 6-4 succeded." << std::endl;
@@ -481,15 +482,15 @@ bool RunTestGroup6()
         else
         {
             std::cerr << "\t\tTest 6-4 failed." << std::endl;
-            std::cerr << "\t\tm1 = " << m1 << "; m1.Degree() = " << m1.Degree() << std::endl;
+            std::cerr << "\t\tm1 = " << m1 << "; m1.degree() = " << m1.degree() << std::endl;
         }
         result = result && currentResult;
     }
 
     {
         Monom m1("x1^2*x3*x4"), m2("x1^2*x4"), m3;
-        m3.SetQuotientOf(m1, m2);
-        currentResult = m3.ToString() == "x3" && m3.Degree() == 1;
+        m3.setQuotientOf(m1, m2);
+        currentResult = m3.toString() == "x3" && m3.degree() == 1;
         if (currentResult)
         {
             std::cout << "\tTest 6-5 succeded." << std::endl;
@@ -497,15 +498,15 @@ bool RunTestGroup6()
         else
         {
             std::cerr << "\t\tTest 6-5 failed." << std::endl;
-            std::cerr << "\t\tm3 = " << m3 << "; m3.Degree() = " << m3.Degree() << std::endl;
+            std::cerr << "\t\tm3 = " << m3 << "; m3.degree() = " << m3.degree() << std::endl;
         }
         result = result && currentResult;
     }
 
     {
         Monom m1("x1^2*x3*x4"), m2("x1*x3"), m3;
-        m3.SetQuotientOf(m1, m2);
-        currentResult = m3.ToString() == "x1*x4" && m3.Degree() == 2;
+        m3.setQuotientOf(m1, m2);
+        currentResult = m3.toString() == "x1*x4" && m3.degree() == 2;
         if (currentResult)
         {
             std::cout << "\tTest 6-6 succeded." << std::endl;
@@ -513,7 +514,7 @@ bool RunTestGroup6()
         else
         {
             std::cerr << "\t\tTest 6-6 failed." << std::endl;
-            std::cerr << "\t\tm3 = " << m3 << "; m3.Degree() = " << m3.Degree() << std::endl;
+            std::cerr << "\t\tm3 = " << m3 << "; m3.degree() = " << m3.degree() << std::endl;
         }
         result = result && currentResult;
     }
@@ -529,7 +530,7 @@ bool RunTestGroup6()
     return result;
 }
 
-bool RunTestGroup7()
+bool runTestGroup7()
 {
     std::cout << "***** Running test group 7 *****" << std::endl;
     bool result = true, currentResult = false;
@@ -592,7 +593,7 @@ bool RunTestGroup7()
 
     {
         Monom m1("x1^2*x3"), m2("x2*x3*x4");
-        currentResult = Monom::Compare(m1, m2) == 1;
+        currentResult = Monom::compare(m1, m2) == 1;
         if (currentResult)
         {
             std::cout << "\tTest 7-5 succeded." << std::endl;
@@ -600,14 +601,14 @@ bool RunTestGroup7()
         else
         {
             std::cerr << "\t\tTest 7-5 failed." << std::endl;
-            std::cerr << "\t\tMonom::Compare(x1^2*x3, x2*x3*x4) = " << Monom::Compare(m1, m2) << std::endl;
+            std::cerr << "\t\tMonom::compare(x1^2*x3, x2*x3*x4) = " << Monom::compare(m1, m2) << std::endl;
         }
         result = result && currentResult;
     }
 
     {
         Monom m1("x1*x3*x5"), m2("x1*x3*x4");
-        currentResult = Monom::Compare(m1, m2) == -1;
+        currentResult = Monom::compare(m1, m2) == -1;
         if (currentResult)
         {
             std::cout << "\tTest 7-6 succeded." << std::endl;
@@ -615,14 +616,14 @@ bool RunTestGroup7()
         else
         {
             std::cerr << "\t\tTest 7-6 failed." << std::endl;
-            std::cerr << "\t\tMonom::Compare(x1*x3, x2*x3*x4) = " << Monom::Compare(m1, m2) << std::endl;
+            std::cerr << "\t\tMonom::compare(x1*x3, x2*x3*x4) = " << Monom::compare(m1, m2) << std::endl;
         }
         result = result && currentResult;
     }
 
     {
         Monom m1("x1*x3"), m2("x1*x3");
-        currentResult = Monom::Compare(m1, m2) == 0;
+        currentResult = Monom::compare(m1, m2) == 0;
         if (currentResult)
         {
             std::cout << "\tTest 7-7 succeded." << std::endl;
@@ -630,7 +631,7 @@ bool RunTestGroup7()
         else
         {
             std::cerr << "\t\tTest 7-7 failed." << std::endl;
-            std::cerr << "\t\tMonom::Compare(x1*x3, x1*x3) = " << Monom::Compare(m1, m2) << std::endl;
+            std::cerr << "\t\tMonom::compare(x1*x3, x1*x3) = " << Monom::compare(m1, m2) << std::endl;
         }
         result = result && currentResult;
     }
@@ -646,14 +647,14 @@ bool RunTestGroup7()
     return result;
 }
 
-bool RunTestGroup8()
+bool runTestGroup8()
 {
     std::cout << "***** Running test group 8 *****" << std::endl;
     bool result = true, currentResult = false;
 
     {
         Monom m1("x1^2*x2*x5"), m2("x2*x5");
-        currentResult = m1.IsDivisibleBy(m2);
+        currentResult = m1.isDivisibleBy(m2);
         if (currentResult)
         {
             std::cout << "\tTest 8-1 succeded." << std::endl;
@@ -667,7 +668,7 @@ bool RunTestGroup8()
 
     {
         Monom m1("x1^2*x2*x5"), m2("x1^2*x5");
-        currentResult = m1.IsDivisibleBy(m2);
+        currentResult = m1.isDivisibleBy(m2);
         if (currentResult)
         {
             std::cout << "\tTest 8-2 succeded." << std::endl;
@@ -681,7 +682,7 @@ bool RunTestGroup8()
 
     {
         Monom m1("x1*x2*x5"), m2("x1*x4");
-        currentResult = !m1.IsDivisibleBy(m2);
+        currentResult = !m1.isDivisibleBy(m2);
         if (currentResult)
         {
             std::cout << "\tTest 8-3 succeded." << std::endl;
@@ -695,7 +696,7 @@ bool RunTestGroup8()
 
     {
         Monom m1("x1*x2*x5"), m2("x1^2*x2");
-        currentResult = !m1.IsDivisibleBy(m2);
+        currentResult = !m1.isDivisibleBy(m2);
         if (currentResult)
         {
             std::cout << "\tTest 8-4 succeded." << std::endl;
@@ -709,7 +710,7 @@ bool RunTestGroup8()
 
     {
         Monom m1("x1*x2*x3"), m2("x1*x2*x3*x4");
-        currentResult = !m1.IsDivisibleBy(m2);
+        currentResult = !m1.isDivisibleBy(m2);
         if (currentResult)
         {
             std::cout << "\tTest 8-5 succeded." << std::endl;
@@ -723,7 +724,7 @@ bool RunTestGroup8()
 
     {
         Monom m1("x1*x2*x3"), m2("x1*x2*x3");
-        currentResult = m1.IsDivisibleBy(m2);
+        currentResult = m1.isDivisibleBy(m2);
         if (currentResult)
         {
             std::cout << "\tTest 8-6 succeded." << std::endl;
@@ -737,7 +738,7 @@ bool RunTestGroup8()
 
     {
         Monom m1("x1*x2*x3"), m2("x1*x2*x3");
-        currentResult = !m1.IsTrueDivisibleBy(m2);
+        currentResult = !m1.isTrueDivisibleBy(m2);
         if (currentResult)
         {
             std::cout << "\tTest 8-7 succeded." << std::endl;
@@ -760,14 +761,14 @@ bool RunTestGroup8()
     return result;
 }
 
-bool RunTestGroup9()
+bool runTestGroup9()
 {
     std::cout << "***** Running test group 9 *****" << std::endl;
     bool result = true, currentResult = false;
 
     {
         Monom m1("x1"), m2("x2");
-        currentResult = !m1.HasSameOnlyVariable(m2);
+        currentResult = !m1.hasSameOnlyVariable(m2);
         if (currentResult)
         {
             std::cout << "\tTest 9-1 succeded." << std::endl;
@@ -781,7 +782,7 @@ bool RunTestGroup9()
 
     {
         Monom m1("x1^2"), m2("x1");
-        currentResult = m1.HasSameOnlyVariable(m2);
+        currentResult = m1.hasSameOnlyVariable(m2);
         if (currentResult)
         {
             std::cout << "\tTest 9-2 succeded." << std::endl;
@@ -795,7 +796,7 @@ bool RunTestGroup9()
 
     {
         Monom m1("x4^2"), m2("x5");
-        currentResult = !m1.HasSameOnlyVariable(m2);
+        currentResult = !m1.hasSameOnlyVariable(m2);
         if (currentResult)
         {
             std::cout << "\tTest 9-3 succeded." << std::endl;
@@ -809,7 +810,7 @@ bool RunTestGroup9()
 
     {
         Monom m1("x2^2"), m2("x2^2");
-        currentResult = m1.HasSameOnlyVariable(m2);
+        currentResult = m1.hasSameOnlyVariable(m2);
         if (currentResult)
         {
             std::cout << "\tTest 9-4 succeded." << std::endl;
@@ -832,14 +833,14 @@ bool RunTestGroup9()
     return result;
 }
 
-bool RunTestGroup10()
+bool runTestGroup10()
 {
     std::cout << "***** Running test group 10 *****" << std::endl;
     bool result = true, currentResult = false;
 
     {
         Monom m1("x1^2*x2*x5"), m2("x1*x4*x5");
-        currentResult = Monom::GcdDegree(m1, m2) == 2;
+        currentResult = Monom::gcdDegree(m1, m2) == 2;
         if (currentResult)
         {
             std::cout << "\tTest 10-1 succeded." << std::endl;
@@ -847,14 +848,14 @@ bool RunTestGroup10()
         else
         {
             std::cerr << "\t\tTest 10-1 failed." << std::endl;
-            std::cerr << "\t\tMonom::GcdDegree(" << m1 << ", " << m2 << ") = " << Monom::GcdDegree(m1, m2) << std::endl;
+            std::cerr << "\t\tMonom::gcdDegree(" << m1 << ", " << m2 << ") = " << Monom::gcdDegree(m1, m2) << std::endl;
         }
         result = result && currentResult;
     }
 
     {
         Monom m1("x1*x2*x5"), m2("x3*x4");
-        currentResult = Monom::GcdDegree(m1, m2) == 0;
+        currentResult = Monom::gcdDegree(m1, m2) == 0;
         if (currentResult)
         {
             std::cout << "\tTest 10-2 succeded." << std::endl;
@@ -862,14 +863,14 @@ bool RunTestGroup10()
         else
         {
             std::cerr << "\t\tTest 10-2 failed." << std::endl;
-            std::cerr << "\t\tMonom::GcdDegree(" << m1 << ", " << m2 << ") = " << Monom::GcdDegree(m1, m2) << std::endl;
+            std::cerr << "\t\tMonom::gcdDegree(" << m1 << ", " << m2 << ") = " << Monom::gcdDegree(m1, m2) << std::endl;
         }
         result = result && currentResult;
     }
 
     {
         Monom m1("x1^2*x2*x5"), m2("x1*x4*x5");
-        currentResult = Monom::LcmDegree(m1, m2) == 5;
+        currentResult = Monom::lcmDegree(m1, m2) == 5;
         if (currentResult)
         {
             std::cout << "\tTest 10-3 succeded." << std::endl;
@@ -877,14 +878,14 @@ bool RunTestGroup10()
         else
         {
             std::cerr << "\t\tTest 10-3 failed." << std::endl;
-            std::cerr << "\t\tMonom::LcmDegree(" << m1 << ", " << m2 << ") = " << Monom::LcmDegree(m1, m2) << std::endl;
+            std::cerr << "\t\tMonom::lcmDegree(" << m1 << ", " << m2 << ") = " << Monom::lcmDegree(m1, m2) << std::endl;
         }
         result = result && currentResult;
     }
 
     {
         Monom m1("x1*x5"), m2("x2*x3*x5");
-        currentResult = Monom::LcmDegree(m1, m2) == 4;
+        currentResult = Monom::lcmDegree(m1, m2) == 4;
         if (currentResult)
         {
             std::cout << "\tTest 10-4 succeded." << std::endl;
@@ -892,15 +893,15 @@ bool RunTestGroup10()
         else
         {
             std::cerr << "\t\tTest 10-4 failed." << std::endl;
-            std::cerr << "\t\tMonom::LcmDegree(" << m1 << ", " << m2 << ") = " << Monom::LcmDegree(m1, m2) << std::endl;
+            std::cerr << "\t\tMonom::lcmDegree(" << m1 << ", " << m2 << ") = " << Monom::lcmDegree(m1, m2) << std::endl;
         }
         result = result && currentResult;
     }
 
     {
         Monom m1("x1*x5"), m2("x2*x3*x5"), m3;
-        m3.SetGcdOf(m1, m2);
-        currentResult = m3.ToString() == "x5";
+        m3.setGcdOf(m1, m2);
+        currentResult = m3.toString() == "x5";
         if (currentResult)
         {
             std::cout << "\tTest 10-5 succeded." << std::endl;
@@ -915,8 +916,8 @@ bool RunTestGroup10()
 
     {
         Monom m1("x1^2*x3^2"), m2("x2^2*x3^2*x5"), m3;
-        m3.SetGcdOf(m1, m2);
-        currentResult = m3.ToString() == "x3^2";
+        m3.setGcdOf(m1, m2);
+        currentResult = m3.toString() == "x3^2";
         if (currentResult)
         {
             std::cout << "\tTest 10-6 succeded." << std::endl;
@@ -931,8 +932,8 @@ bool RunTestGroup10()
 
     {
         Monom m1("x1^2*x3"), m2("x2*x3*x5"), m3;
-        m3.SetLcmOf(m1, m2);
-        currentResult = m3.ToString() == "x1^2*x2*x3*x5";
+        m3.setLcmOf(m1, m2);
+        currentResult = m3.toString() == "x1^2*x2*x3*x5";
         if (currentResult)
         {
             std::cout << "\tTest 10-7 succeded." << std::endl;
@@ -947,8 +948,8 @@ bool RunTestGroup10()
 
     {
         Monom m1("x1*x3"), m2("x2*x3"), m3;
-        m3.SetLcmOf(m1, m2);
-        currentResult = m3.ToString() == "x1*x2*x3";
+        m3.setLcmOf(m1, m2);
+        currentResult = m3.toString() == "x1*x2*x3";
         if (currentResult)
         {
             std::cout << "\tTest 10-8 succeded." << std::endl;
@@ -974,18 +975,18 @@ bool RunTestGroup10()
 
 int main()
 {
-    SetVariables();
+    setVariables();
 
-    bool result = RunTestGroup1();
-    result = result && RunTestGroup2();
-    result = result && RunTestGroup3();
-    result = result && RunTestGroup4();
-    result = result && RunTestGroup5();
-    result = result && RunTestGroup6();
-    result = result && RunTestGroup7();
-    result = result && RunTestGroup8();
-    result = result && RunTestGroup9();
-    result = result && RunTestGroup10();
+    bool result = runTestGroup1();
+    result = result && runTestGroup2();
+    result = result && runTestGroup3();
+    result = result && runTestGroup4();
+    result = result && runTestGroup5();
+    result = result && runTestGroup6();
+    result = result && runTestGroup7();
+    result = result && runTestGroup8();
+    result = result && runTestGroup9();
+    result = result && runTestGroup10();
 
     if (result)
     {

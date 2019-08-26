@@ -1,57 +1,60 @@
-#include <algorithm>
-#include <sstream>
-#include <string>
 #include "polynom.h"
 
-FastAllocator Polynom::Allocator(sizeof(Polynom));
-Monom Polynom::UniteMonom;
+#include <algorithm>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+
+
+FastAllocator Polynom::allocator_(sizeof(Polynom));
+Monom Polynom::uniteMonom_;
+
 
 Polynom::Polynom(const std::string& str)
-    : MonomListHead(0)
 {
     std::stringstream tmpStream(str);
     tmpStream >> *this;
 }
 
-bool Polynom::IsBinomial() const
+bool Polynom::isBinomial() const
 {
-    Monom* iterator1 = MonomListHead;
-    if (!iterator1 || iterator1->Degree() != 2)
+    Monom* iterator1 = monomListHead_;
+    if (!iterator1 || iterator1->degree() != 2)
     {
         return false;
     }
-    Monom* iterator2 = iterator1->Next;
-    if (!iterator2 || iterator2->Degree() != 1)
+    Monom* iterator2 = iterator1->next;
+    if (!iterator2 || iterator2->degree() != 1)
     {
         return false;
     }
-    return !(iterator2->Next) && iterator1->HasSameOnlyVariable(*iterator2);
+    return !(iterator2->next) && iterator1->hasSameOnlyVariable(*iterator2);
 }
 
 const Polynom& Polynom::operator+=(const Monom& newMonom)
 {
-    Monom** position = const_cast<Monom**>(Find(newMonom));
+    Monom** position = find(newMonom);
     Monom* tmpMonom = 0;
 
     if (!position)
     {
         tmpMonom = new Monom(newMonom);
-        tmpMonom->Next = MonomListHead;
-        MonomListHead = tmpMonom;
+        tmpMonom->next = monomListHead_;
+        monomListHead_ = tmpMonom;
     }
     else
     {
         if (*position && **position == newMonom)
         {
             tmpMonom = *position;
-            *position = (*position)->Next;
+            *position = (*position)->next;
             delete tmpMonom;
         }
         else
         {
             tmpMonom = new Monom(newMonom);
-            tmpMonom->Next = (*position)->Next;
-            (*position)->Next = tmpMonom;
+            tmpMonom->next = (*position)->next;
+            (*position)->next = tmpMonom;
         }
     }
 
@@ -60,31 +63,33 @@ const Polynom& Polynom::operator+=(const Monom& newMonom)
 
 const Polynom& Polynom::operator+=(const Polynom& anotherPolynom)
 {
-    if (anotherPolynom.MonomListHead)
+    if (anotherPolynom.monomListHead_)
     {
-        Monom **iterator = &MonomListHead,
-               *iteratorAnother = anotherPolynom.MonomListHead,
+        Monom **iterator = &monomListHead_,
+               *iteratorAnother = anotherPolynom.monomListHead_,
                *tmpMonom = 0;
 
         while (*iterator && iteratorAnother)
         {
-            switch (Monom::Compare(**iterator, *iteratorAnother))
+            switch (Monom::compare(**iterator, *iteratorAnother))
             {
                 case -1:
                     tmpMonom = new Monom(*iteratorAnother);
-                    tmpMonom->Next = *iterator;
+                    tmpMonom->next = *iterator;
                     *iterator = tmpMonom;
-                    iterator = &(tmpMonom->Next);
-                    iteratorAnother = iteratorAnother->Next;
+                    iterator = &(tmpMonom->next);
+                    iteratorAnother = iteratorAnother->next;
                     break;
+
                 case 0:
                     tmpMonom = *iterator;
-                    *iterator = (*iterator)->Next;
+                    *iterator = (*iterator)->next;
                     delete tmpMonom;
-                    iteratorAnother = iteratorAnother->Next;
+                    iteratorAnother = iteratorAnother->next;
                     break;
+
                 case 1:
-                    iterator = &((*iterator)->Next);
+                    iterator = &((*iterator)->next);
                     break;
             }
         }
@@ -92,82 +97,82 @@ const Polynom& Polynom::operator+=(const Polynom& anotherPolynom)
         while (iteratorAnother)
         {
             *iterator = new Monom(*iteratorAnother);
-            iterator = &((*iterator)->Next);
-            iteratorAnother = iteratorAnother->Next;
+            iterator = &((*iterator)->next);
+            iteratorAnother = iteratorAnother->next;
         }
     }
 
     return *this;
 }
 
-void Polynom::Multiply(Monom::Integer var, Monom::Integer degree)
+void Polynom::multiply(Monom::Integer var, Monom::Integer degree)
 {
-    if (MonomListHead)
+    if (monomListHead_)
     {
-        Monom* iterator = MonomListHead;
+        Monom* iterator = monomListHead_;
         while (iterator)
         {
-            iterator->Prolong(var, degree);
-            iterator = iterator->Next;
+            iterator->prolong(var, degree);
+            iterator = iterator->next;
         }
     }
 }
 
-void Polynom::Multiply(const Monom& anotherMonom)
+void Polynom::multiply(const Monom& anotherMonom)
 {
-    if (MonomListHead)
+    if (monomListHead_)
     {
-        Monom* iterator = MonomListHead;
+        Monom* iterator = monomListHead_;
         while (iterator)
         {
-            iterator->Multiply(anotherMonom);
-            iterator = iterator->Next;
+            iterator->multiply(anotherMonom);
+            iterator = iterator->next;
         }
     }
 }
 
-void Polynom::Multiply(const Polynom& anotherPolynom)
+void Polynom::multiply(const Polynom& anotherPolynom)
 {
-    if (MonomListHead)
+    if (monomListHead_)
     {
-        Polynom *tmpPolynom = 0,
+        Polynom *tmpPolynom = nullptr,
                 *tmpResult = new Polynom();
-        Monom* iteratorAnother = anotherPolynom.MonomListHead;
+        Monom* iteratorAnother = anotherPolynom.monomListHead_;
 
         while (iteratorAnother)
         {
             tmpPolynom = new Polynom(*this);
-            tmpPolynom->Multiply(*iteratorAnother);
-            tmpResult->MergeWith(*tmpPolynom);
+            tmpPolynom->multiply(*iteratorAnother);
+            tmpResult->mergeWith(*tmpPolynom);
             delete tmpPolynom;
-            iteratorAnother = iteratorAnother->Next;
+            iteratorAnother = iteratorAnother->next;
         }
-        SetZero();
-        MonomListHead = tmpResult->MonomListHead;
-        tmpResult->MonomListHead = 0;
+        setZero();
+        monomListHead_ = tmpResult->monomListHead_;
+        tmpResult->monomListHead_ = nullptr;
         delete tmpResult;
     }
 }
 
-void Polynom::Reduction(const Polynom& anotherPolynom)
+void Polynom::reduction(const Polynom& anotherPolynom)
 {
-    if (MonomListHead && anotherPolynom.MonomListHead)
+    if (monomListHead_ && anotherPolynom.monomListHead_)
     {
         Monom* tmpMonom = new Monom();
-        Polynom* tmpPolynom = 0;
-        Monom* iterator = MonomListHead;
-        const Monom& anotherLm = anotherPolynom.Lm();
+        Polynom* tmpPolynom = nullptr;
+        Monom* iterator = monomListHead_;
+        const Monom& anotherLm = anotherPolynom.lm();
 
         while (iterator)
         {
-            if (iterator->IsDivisibleBy(anotherLm))
+            if (iterator->isDivisibleBy(anotherLm))
             {
-                tmpMonom->SetQuotientOf(*iterator, anotherLm);
+                tmpMonom->setQuotientOf(*iterator, anotherLm);
                 tmpPolynom = new Polynom(anotherPolynom);
-                tmpPolynom->Multiply(*tmpMonom);
-                MergeWith(*tmpPolynom);
+                tmpPolynom->multiply(*tmpMonom);
+                mergeWith(*tmpPolynom);
                 delete tmpPolynom;
-                iterator = MonomListHead;
+                iterator = monomListHead_;
             }
             else
             {
@@ -175,25 +180,25 @@ void Polynom::Reduction(const Polynom& anotherPolynom)
             }
         }
 
-        if (MonomListHead)
+        if (monomListHead_)
         {
             Monom* iterator2 = iterator;
-            iterator = iterator->Next;
+            iterator = iterator->next;
             while (iterator)
             {
-                if (iterator->IsDivisibleBy(anotherLm))
+                if (iterator->isDivisibleBy(anotherLm))
                 {
-                    tmpMonom->SetQuotientOf(*iterator, anotherLm);
+                    tmpMonom->setQuotientOf(*iterator, anotherLm);
                     tmpPolynom = new Polynom(anotherPolynom);
-                    tmpPolynom->Multiply(*tmpMonom);
-                    MergeWith(*tmpPolynom);
+                    tmpPolynom->multiply(*tmpMonom);
+                    mergeWith(*tmpPolynom);
                     delete tmpPolynom;
-                    iterator = iterator2->Next;
+                    iterator = iterator2->next;
                 }
                 else
                 {
-                    iterator2 = iterator2->Next;
-                    iterator = iterator2->Next;
+                    iterator2 = iterator2->next;
+                    iterator = iterator2->next;
                 }
             }
         }
@@ -201,25 +206,25 @@ void Polynom::Reduction(const Polynom& anotherPolynom)
     }
 }
 
-void Polynom::HeadReduction(const Polynom& anotherPolynom)
+void Polynom::headReduction(const Polynom& anotherPolynom)
 {
-    if (MonomListHead && anotherPolynom.MonomListHead)
+    if (monomListHead_ && anotherPolynom.monomListHead_)
     {
         Monom* tmpMonom = new Monom();
-        Polynom* tmpPolynom = 0;
-        Monom* iterator = MonomListHead;
-        const Monom& anotherLm = anotherPolynom.Lm();
+        Polynom* tmpPolynom = nullptr;
+        Monom* iterator = monomListHead_;
+        const Monom& anotherLm = anotherPolynom.lm();
 
         while (iterator)
         {
-            if (iterator->IsDivisibleBy(anotherLm))
+            if (iterator->isDivisibleBy(anotherLm))
             {
-                tmpMonom->SetQuotientOf(*iterator, anotherLm);
+                tmpMonom->setQuotientOf(*iterator, anotherLm);
                 tmpPolynom = new Polynom(anotherPolynom);
-                tmpPolynom->Multiply(*tmpMonom);
-                MergeWith(*tmpPolynom);
+                tmpPolynom->multiply(*tmpMonom);
+                mergeWith(*tmpPolynom);
                 delete tmpPolynom;
-                iterator = MonomListHead;
+                iterator = monomListHead_;
             }
             else
             {
@@ -230,33 +235,35 @@ void Polynom::HeadReduction(const Polynom& anotherPolynom)
     }
 }
 
-void Polynom::MergeWith(Polynom& anotherPolynom)
+void Polynom::mergeWith(Polynom& anotherPolynom)
 {
-    Monom **iterator = &MonomListHead,
-           *iteratorAnother = anotherPolynom.MonomListHead,
-           *tmpPointer = 0;
+    Monom **iterator = &monomListHead_,
+           *iteratorAnother = anotherPolynom.monomListHead_,
+           *tmpPointer = nullptr;
 
     while (*iterator && iteratorAnother)
     {
-        switch (Monom::Compare(**iterator, *iteratorAnother))
+        switch (Monom::compare(**iterator, *iteratorAnother))
         {
         case -1:
             tmpPointer = iteratorAnother;
-            iteratorAnother = iteratorAnother->Next;
-            tmpPointer->Next = *iterator;
+            iteratorAnother = iteratorAnother->next;
+            tmpPointer->next = *iterator;
             *iterator = tmpPointer;
-            iterator = &(tmpPointer->Next);
+            iterator = &(tmpPointer->next);
             break;
+
         case 0:
             tmpPointer = *iterator;
-            *iterator = (*iterator)->Next;
+            *iterator = (*iterator)->next;
             delete tmpPointer;
             tmpPointer = iteratorAnother;
-            iteratorAnother = iteratorAnother->Next;
+            iteratorAnother = iteratorAnother->next;
             delete tmpPointer;
             break;
+
         case 1:
-            iterator = &((*iterator)->Next);
+            iterator = &((*iterator)->next);
             break;
         }
     }
@@ -266,10 +273,10 @@ void Polynom::MergeWith(Polynom& anotherPolynom)
         *iterator = iteratorAnother;
     }
 
-    anotherPolynom.MonomListHead = 0;
+    anotherPolynom.monomListHead_ = 0;
 }
 
-std::string Polynom::ToString() const
+std::string Polynom::toString() const
 {
     std::stringstream tmpStream;
     tmpStream << *this;
@@ -278,19 +285,19 @@ std::string Polynom::ToString() const
 
 std::ostream& operator<<(std::ostream& out, const Polynom& polynom)
 {
-    if (!polynom.MonomListHead)
+    if (!polynom.monomListHead_)
     {
         out << "0";
     }
     else
     {
-        Monom* iteratorA(polynom.MonomListHead);
+        Monom* iteratorA(polynom.monomListHead_);
         out << *iteratorA;
-        iteratorA = iteratorA->Next;
+        iteratorA = iteratorA->next;
         while (iteratorA)
         {
             out << " + " << *iteratorA;
-            iteratorA = iteratorA->Next;
+            iteratorA = iteratorA->next;
         }
     }
 
@@ -299,44 +306,46 @@ std::ostream& operator<<(std::ostream& out, const Polynom& polynom)
 
 std::istream& operator>>(std::istream& in, Polynom& polynom)
 {
-    polynom.Additive(in);
+    polynom.additive(in);
     return in;
 }
 
-void Polynom::Additive(std::istream& in)
+void Polynom::additive(std::istream& in)
 {
-    Multiplicative(in);
+    multiplicative(in);
+
     int op = (in >> std::ws).peek();
     Polynom tmpPolynom;
-    while(op == '+' || op == '-')
+    while (op == '+' || op == '-')
     {
         in.get();
-        tmpPolynom.Multiplicative(in);
+        tmpPolynom.multiplicative(in);
         *this += tmpPolynom;
         op = in.peek();
     }
 }
 
-void Polynom::Multiplicative(std::istream& in)
+void Polynom::multiplicative(std::istream& in)
 {
-    Unary(in);
+    unary(in);
+
     int op = (in >> std::ws).peek();
     Polynom tmpPolynom;
-    while(op == '*')
+    while (op == '*')
     {
         in.get();
-        tmpPolynom.Unary(in);
-        Multiply(tmpPolynom);
+        tmpPolynom.unary(in);
+        multiply(tmpPolynom);
         op = in.peek();
     }
 }
 
-void Polynom::Unary(std::istream& in)
+void Polynom::unary(std::istream& in)
 {
     int ch = (in >> std::ws).peek();
     if (ch != '+' && ch != '-')
     {
-        Power(in);
+        power(in);
     }
     else
     {
@@ -344,13 +353,14 @@ void Polynom::Unary(std::istream& in)
         {
             ch = (in >> std::ws).peek();
         } while (ch == '+' || ch == '-');
-        Power(in);
+        power(in);
     }
 }
 
-void Polynom::Power(std::istream& in)
+void Polynom::power(std::istream& in)
 {
-    Bracket(in);
+    bracket(in);
+
     int op = (in >> std::ws).peek();
     if (op == '^')
     {
@@ -361,34 +371,33 @@ void Polynom::Power(std::istream& in)
         {
             std::cerr << "expected 'degree > 0'" << std::endl;
         }
-        for (register int i = 1; i < degree; ++i)
+        for (int i = 1; i < degree; ++i)
         {
-            Multiply(*this);
+            multiply(*this);
         }
     }
 }
 
-void Polynom::Bracket(std::istream& in)
+void Polynom::bracket(std::istream& in)
 {
     int op = (in >> std::ws).peek();
     if (op == '(')
     {
         in.get();
-        Additive(in);
+        additive(in);
         if (in.get() != ')')
         {
-            std::cerr << "expected ')'" << std::endl;
-            exit(EXIT_FAILURE);
+            throw std::invalid_argument("expected ')' while polynom parsing");
         }
     }
     else
     {
-        SetOne();
+        setOne();
         Monom* tmpMonom = new Monom();
         in >> *tmpMonom;
         if (!in.fail())
         {
-            this->Multiply(*tmpMonom);
+            multiply(*tmpMonom);
             delete tmpMonom;
         }
         else
@@ -398,12 +407,11 @@ void Polynom::Bracket(std::istream& in)
             op = in.get();
             if (op == '0')
             {
-                SetZero();
+                setZero();
             }
             else if (op != '1')
             {
-                std::cerr << "expected 'monomial'" << std::endl;
-                exit(EXIT_FAILURE);
+                throw std::invalid_argument("expected monomial while polynom parsing");
             }
         }
     }

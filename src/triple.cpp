@@ -1,64 +1,48 @@
 #include "triple.h"
 
-FastAllocator Triple::Allocator(sizeof(Triple));
+
+FastAllocator Triple::allocator_(sizeof(Triple));
+
 
 Triple::Triple(Polynom* initialPolynom)
-    : Lm(0)
-    , Polynomial(initialPolynom)
-    , Ancestor(0)
-    , WeakAncestor(0)
-    , Nmp()
-    , Variable(-1)
+    : polynomial_(initialPolynom)
 {
-    if (Polynomial)
+    if (polynomial_)
     {
-        Lm = &Polynomial->Lm();
-        Ancestor = this;
-        Nmp = std::set<Monom::Integer>();
+        lm_ = &polynomial_->lm();
+        ancestor_ = this;
     }
 }
 
-Triple::Triple(Polynom* initialPolynom
-             , const Triple* initialAncestor
-             , const std::set<Monom::Integer>& initialNmp
-             , const Triple* weakAncestor
-             , Monom::Integer nmVar)
-    : Lm(0)
-    , Polynomial(0)
-    , Ancestor(0)
-    , WeakAncestor(0)
-    , Nmp()
-    , Variable(nmVar)
+Triple::Triple(Polynom* initialPolynom,
+               const Triple* initialAncestor,
+               const std::set<Monom::Integer>& initialNmp,
+               const Triple* weakAncestor,
+               Monom::Integer nmVar)
+    : variable_(nmVar)
 {
     if (initialPolynom)
     {
-        if (Variable == -1)
+        if (variable_ == -1)
         {
-            Polynomial = initialPolynom;
-            if (initialAncestor)
-            {
-                Ancestor = initialAncestor;
-            }
-            else
-            {
-                Ancestor = this;
-            }
+            polynomial_ = initialPolynom;
+            ancestor_ = initialAncestor ? initialAncestor : this;
         }
         else
         {
-            Polynomial = new Polynom();
-            (*Polynomial) += initialPolynom->Lm();
+            polynomial_ = new Polynom();
+            (*polynomial_) += initialPolynom->lm();
 
-            Ancestor = initialAncestor;
-            WeakAncestor = weakAncestor;
+            ancestor_ = initialAncestor;
+            weakAncestor_ = weakAncestor;
         }
 
-        Lm = &Polynomial->Lm();
-        Nmp = initialNmp;
+        lm_ = &polynomial_->lm();
+        nmp_ = initialNmp;
     }
 }
 
-bool Triple::Compare(const Triple* tripleA, const Triple* tripleB)
+bool Triple::compare(const Triple* tripleA, const Triple* tripleB)
 {
-    return *tripleA->Lm > *tripleB->Lm;
+    return *tripleA->lm_ > *tripleB->lm_;
 }

@@ -1,33 +1,34 @@
+#include "fast_allocator.h"
+
 #include <cstdlib>
 #include <cmath>
 
-#include "fast_allocator.h"
 
 FastAllocator::FastAllocator(size_t blockSize)
-    : TSize(ceil((double)blockSize / sizeof(void*)))
-    , MemoryPageSize(blockSize * PageSize)
-    , FreeBlock(0)
+    : tSize_(ceil((double)blockSize / sizeof(void*)))
+    , memoryPageSize_(blockSize * pageSize_)
+    , freeBlock_(nullptr)
 {
 }
 
 FastAllocator::~FastAllocator()
 {
-    for (std::list<void*>::iterator it = AllocatedBlocks.begin(); it != AllocatedBlocks.end(); ++it)
+    for (auto* block : allocatedBlocks_)
     {
-        free(*it);
+        free(block);
     }
 }
 
-unsigned long FastAllocator::GetUsedMemory()
+unsigned long FastAllocator::getUsedMemory()
 {
-    return UsedMemory;
+    return usedMemory_;
 }
 
-void FastAllocator::ExpandMemory() // throws std::bad_alloc
+void FastAllocator::expandMemory() // throws std::bad_alloc
 {
-    UsedMemory += MemoryPageSize;
-    void **begin = static_cast<void**>(malloc(MemoryPageSize)),
-         **end = begin + TSize * (PageSize - 1),
+    usedMemory_ += memoryPageSize_;
+    void **begin = static_cast<void**>(malloc(memoryPageSize_)),
+         **end = begin + tSize_ * (pageSize_ - 1),
          **tmp;
 
     if (!begin)
@@ -35,17 +36,17 @@ void FastAllocator::ExpandMemory() // throws std::bad_alloc
         throw std::bad_alloc();
     }
 
-    AllocatedBlocks.push_back(static_cast<void*>(begin));
+    allocatedBlocks_.push_back(static_cast<void*>(begin));
 
-    *(reinterpret_cast<void***>(end)) = FreeBlock;
-    FreeBlock = static_cast<void**>(begin);
+    *(reinterpret_cast<void***>(end)) = freeBlock_;
+    freeBlock_ = static_cast<void**>(begin);
     do
     {
-        tmp = begin + TSize;
+        tmp = begin + tSize_;
         *(reinterpret_cast<void***>(begin)) = tmp;
         begin = tmp;
-    } while(begin < end);
+    } while (begin < end);
 }
 
-unsigned long FastAllocator::UsedMemory = 0;
-const size_t FastAllocator::PageSize = 65536;
+unsigned long FastAllocator::usedMemory_ = 0;
+const size_t FastAllocator::pageSize_ = 65536;

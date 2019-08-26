@@ -1,25 +1,4 @@
-/***************************************************************************
- *   Copyright (C) 2004 by Blinkov Yu.A.                                   *
- *   BlinkovUA@info.sgu.ru                                                 *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************/
-
-#ifndef FAST_ALLOCATOR_H
-#define FAST_ALLOCATOR_H
+#pragma once
 
 #include <cstddef>
 #include <list>
@@ -27,43 +6,41 @@
 class FastAllocator
 {
 public:
-    static unsigned long GetUsedMemory();
-
     FastAllocator(const size_t blockSize);
     ~FastAllocator();
 
-    void* Allocate(); // throws std::bad_alloc
-    void Free(void* pointer);
+    void* allocate(); // throws std::bad_alloc
+    void free(void* pointer);
+
+    static unsigned long getUsedMemory();
 
 private:
-    void ExpandMemory(); // throws std::bad_alloc
+    void expandMemory(); // throws std::bad_alloc
 
 private:
-    const size_t TSize;
-    const size_t MemoryPageSize;
-    void**       FreeBlock;
-    std::list<void*> AllocatedBlocks;
+    const size_t tSize_;
+    const size_t memoryPageSize_;
+    void**       freeBlock_;
+    std::list<void*> allocatedBlocks_;
 
-    static unsigned long UsedMemory;
-    static const size_t PageSize;
+    static unsigned long usedMemory_;
+    static const size_t pageSize_;
 };
 
-inline void* FastAllocator::Allocate()
+inline void* FastAllocator::allocate()
 {
-    if (!FreeBlock)
+    if (!freeBlock_)
     {
-        ExpandMemory();
+        expandMemory();
     }
 
-    void* pointer = static_cast<void*>(FreeBlock);
-    FreeBlock = static_cast<void**>(*FreeBlock);
+    void* pointer = static_cast<void*>(freeBlock_);
+    freeBlock_ = static_cast<void**>(*freeBlock_);
     return pointer;
 }
 
-inline void FastAllocator::Free(void* pointer)
+inline void FastAllocator::free(void* pointer)
 {
-    *(static_cast<void***>(pointer)) = FreeBlock;
-    FreeBlock = static_cast<void**>(pointer);
+    *(static_cast<void***>(pointer)) = freeBlock_;
+    freeBlock_ = static_cast<void**>(pointer);
 }
-
-#endif // FAST_ALLOCATOR_H

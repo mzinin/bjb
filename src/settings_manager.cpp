@@ -1,59 +1,48 @@
 #include "settings_manager.h"
 
-SettingsManager::SettingsManager()
-    : CollectStatistics(false)
-    , PrintAnswer(false)
-    , PrintVersion(false)
-    , PrintHelp(false)
+
+void SettingsManager::setCollectStatisticsEnabled()
 {
+    collectStatistics_ = true;
 }
 
-SettingsManager::~SettingsManager()
+void SettingsManager::setCollectStatisticsDisabled()
 {
+    collectStatistics_ = false;
 }
 
-void SettingsManager::SetCollectStatisticsEnabled()
+void SettingsManager::setPrintAnswerEnabled()
 {
-    CollectStatistics = true;
+    printAnswer_ = true;
 }
 
-void SettingsManager::SetCollectStatisticsDisabled()
+void SettingsManager::setPrintAnswerDisabled()
 {
-    CollectStatistics = false;
+    printAnswer_ = false;
 }
 
-void SettingsManager::SetPrintAnswerEnabled()
+void SettingsManager::setPrintVersionEnabled()
 {
-    PrintAnswer = true;
+    printVersion_ = true;
 }
 
-void SettingsManager::SetPrintAnswerDisabled()
+void SettingsManager::setPrintVersionDisabled()
 {
-    PrintAnswer = false;
+    printVersion_ = false;
 }
 
-void SettingsManager::SetPrintVersionEnabled()
+void SettingsManager::setPrintHelpEnabled()
 {
-    PrintVersion = true;
+    printHelp_ = true;
 }
 
-void SettingsManager::SetPrintVersionDisabled()
+void SettingsManager::setPrintHelpDisabled()
 {
-    PrintVersion = false;
+    printHelp_ = false;
 }
 
-void SettingsManager::SetPrintHelpEnabled()
+SettingsManager& getSettingsManager()
 {
-    PrintHelp = true;
-}
-
-void SettingsManager::SetPrintHelpDisabled()
-{
-    PrintHelp = false;
-}
-
-SettingsManager& GetSettingsManager()
-{
-    static SettingsManager manager = SettingsManager();
+    static SettingsManager manager;
     return manager;
 }

@@ -1,100 +1,93 @@
-#ifndef TSET_H
-#define TSET_H
+#pragma once
 
-#include <list>
 #include "janettree.h"
+#include <list>
+
 
 class TSet
 {
 public:
-    typedef std::list<Triple*>::iterator Iterator;
-    typedef std::list<Triple*>::const_iterator ConstIterator;
+    using Iterator = std::list<Triple*>::iterator;
+    using ConstIterator = std::list<Triple*>::const_iterator;
 
-    TSet();
+public:
+    TSet() = default;
     ~TSet();
 
-    Iterator Begin();
-    ConstIterator Begin() const;
-    Iterator End();
-    ConstIterator End() const;
+    Iterator begin();
+    ConstIterator begin() const;
+    Iterator end();
+    ConstIterator end() const;
 
-    void Clear();
-    Iterator Erase(Iterator it);
-    void PushBack(Triple* newTriple);
-    std::size_t Size() const;
+    void clear();
+    Iterator erase(Iterator it);
+    void pushBack(Triple* newTriple);
+    std::size_t size() const;
 
-    const Triple* FindDivisor(const Monom& monom) const;
-    std::set<Monom::Integer> NonMulti(const Triple* triple) const;
-    Triple* const Back() const;
+    const Triple* findDivisor(const Monom& monom) const;
+    std::set<Monom::Integer> nonMulti(const Triple* triple) const;
+    Triple* const back() const;
 
-    void CollectNonMultiProlongations(Iterator& iterator, std::list<Triple*>& set);
+    void collectNonMultiProlongations(Iterator& iterator, std::list<Triple*>& set);
 
 private:
-    std::list<Triple*> TripleList;
-    JanetTree JTree;
+    std::list<Triple*> tripleList_;
+    JanetTree jTree_;
 };
-
-inline TSet::TSet()
-    : TripleList()
-    , JTree()
-{
-}
 
 inline TSet::~TSet()
 {
-    Clear();
+    clear();
 }
 
-inline TSet::Iterator TSet::Begin()
+inline TSet::Iterator TSet::begin()
 {
-    return TripleList.begin();
+    return tripleList_.begin();
 }
 
-inline TSet::ConstIterator TSet::Begin() const
+inline TSet::ConstIterator TSet::begin() const
 {
-    return TripleList.begin();
+    return tripleList_.begin();
 }
 
-inline TSet::Iterator TSet::End()
+inline TSet::Iterator TSet::end()
 {
-    return TripleList.end();
+    return tripleList_.end();
 }
 
-inline TSet::ConstIterator TSet::End() const
+inline TSet::ConstIterator TSet::end() const
 {
-    return TripleList.end();
+    return tripleList_.end();
 }
 
-inline TSet::Iterator TSet::Erase(TSet::Iterator it)
+inline TSet::Iterator TSet::erase(TSet::Iterator it)
 {
-    JTree.Delete(*it);
-    return TripleList.erase(it);
+    jTree_.erase(*it);
+    return tripleList_.erase(it);
 }
 
-inline void TSet::PushBack(Triple* newTriple)
+inline void TSet::pushBack(Triple* newTriple)
 {
-    TripleList.push_back(newTriple);
-    JTree.Insert(newTriple);
+    tripleList_.push_back(newTriple);
+    jTree_.insert(newTriple);
 }
 
-inline std::size_t TSet::Size() const
+inline std::size_t TSet::size() const
 {
-    return TripleList.size();
+    return tripleList_.size();
 }
 
-inline const Triple* TSet::FindDivisor(const Monom& monom) const
+inline const Triple* TSet::findDivisor(const Monom& monom) const
 {
-    return JTree.Find(monom);
+    return jTree_.find(monom);
 }
 
-inline std::set<Monom::Integer> TSet::NonMulti(const Triple* triple) const
+inline std::set<Monom::Integer> TSet::nonMulti(const Triple* triple) const
 {
-    return JTree.NonMulti(triple);
+    return jTree_.nonMulti(triple);
 }
 
-inline Triple* const TSet::Back() const
+inline Triple* const TSet::back() const
 {
-    return TripleList.back();
+    return tripleList_.back();
 }
-
-#endif // TSET_H
