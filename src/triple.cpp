@@ -23,7 +23,7 @@ Triple::Triple(Polynom* initialPolynom,
 {
     if (initialPolynom)
     {
-        if (variable_ == -1)
+        if (variable_ == Monom::invalidVariable)
         {
             polynomial_ = initialPolynom;
             ancestor_ = initialAncestor ? initialAncestor : this;

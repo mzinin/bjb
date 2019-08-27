@@ -2,6 +2,8 @@
 
 #include "timer.h"
 
+#include <cstdint>
+
 
 class ResourceCounter
 {
@@ -9,10 +11,10 @@ public:
     Timer groebnerBasisTimer;
     Timer autoReductionTimer;
 
-    unsigned long nonMultiProlongations = 0;
-    unsigned long nonMultiProlongationsLength = 0;
-    unsigned long nonZeroReductions = 0;
-    unsigned long nonZeroReductionsLength = 0;
+    uint64_t nonMultiProlongations = 0;
+    uint64_t nonMultiProlongationsLength = 0;
+    uint64_t nonZeroReductions = 0;
+    uint64_t nonZeroReductionsLength = 0;
 
 public:
     ResourceCounter(const ResourceCounter&) = delete;

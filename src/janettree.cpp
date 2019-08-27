@@ -23,7 +23,7 @@ const Triple* JanetTree::find(const Monom& monom) const
             }
             else if (nodeIterator.hasNextVariable())
             {
-                degree -= monom[var];
+                degree = static_cast<Monom::Integer>(degree - monom[var]);
                 if (!degree)
                 {
                     break;
@@ -71,7 +71,7 @@ void JanetTree::insert(Triple* triple)
             }
             else if (nodeIterator.degree() == triple->polynomLm()[var])
             {
-                degree -= triple->polynomLm()[var];
+                degree = static_cast<Monom::Integer>(degree - triple->polynomLm()[var]);
                 ++var;
                 nodeIterator.stepNextVariable();
             }

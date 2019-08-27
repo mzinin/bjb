@@ -9,17 +9,19 @@ void ResourceCounter::printFullStatistics(std::ostream& out) const
 {
     out << std::setw(38) << std::left << "Non-Multiple Prolongations considered" << ": " << nonMultiProlongations << std::endl;
 
+    const auto nonZeroReductionsFraction = double(nonZeroReductions) / double(nonMultiProlongations) * 100;
     out << std::setw(38) << std::left << "Non-Zero Reductions made" << ": " << nonZeroReductions
-        << " (" << std::fixed << std::setprecision(2) << double(nonZeroReductions) / nonMultiProlongations * 100 << "%)" << std::endl;
+        << " (" << std::fixed << std::setprecision(2) << nonZeroReductionsFraction << "%)" << std::endl;
 
+    const auto nonMultiProlongationsFraction = double(nonMultiProlongations - nonZeroReductions) / double(nonMultiProlongations) * 100;
     out << std::setw(38) << std::left << "Zero Reductions made" << ": " << nonMultiProlongations - nonZeroReductions
-        << " (" << std::fixed << std::setprecision(2) << double(nonMultiProlongations - nonZeroReductions) / nonMultiProlongations * 100 << "%)" << std::endl << std::endl;
+        << " (" << std::fixed << std::setprecision(2) << nonMultiProlongationsFraction << "%)" << std::endl << std::endl;
 
     out << std::setw(41) << std::left << "Average Non-Multiple Prolongation length" << ": "
-        << std::setprecision(2) << double(nonMultiProlongationsLength) / nonMultiProlongations << std::endl;
+        << std::setprecision(2) << double(nonMultiProlongationsLength) / double(nonMultiProlongations) << std::endl;
 
     out << std::setw(41) << std::left << "Average Non-Zero Reduction length" << ": "
-        << std::setprecision(2) << double(nonZeroReductionsLength) / nonZeroReductions << std::endl << std::endl;
+        << std::setprecision(2) << double(nonZeroReductionsLength) / double(nonZeroReductions) << std::endl << std::endl;
 
     printBriefStatistics(out);
 }
@@ -27,7 +29,7 @@ void ResourceCounter::printFullStatistics(std::ostream& out) const
 void ResourceCounter::printBriefStatistics(std::ostream& out) const
 {
     out << std::setw(19) << "Memory used" << ": ";
-    unsigned long usedMemory = FastAllocator::getUsedMemory();
+    const auto usedMemory = FastAllocator::getUsedMemory();
     if (usedMemory < 1024*1024)
     {
         out << std::fixed << std::setprecision(1) << double(usedMemory) / 1024 << " Kb" << std::endl;

@@ -3,15 +3,18 @@
 #include "fast_allocator.h"
 #include "variables.h"
 
+#include <cstdint>
 #include <string>
 
 
 class Monom
 {
 public:
-    using Integer = short int;
+    using Integer = uint16_t;
 
     Monom* next = nullptr;
+
+    static const Integer invalidVariable;
 
 public:
     Monom() = default;
@@ -250,10 +253,10 @@ inline void Monom::prolong(Monom::Integer var, Monom::Integer degree)
         }
         else
         {
-            position->degree += degree;
+            position->degree = static_cast<Integer>(position->degree + degree);
         }
     }
-    totalDegree_ += degree;
+    totalDegree_ = static_cast<Integer>(totalDegree_ + degree);
 }
 
 inline void Monom::multiply(const Monom& anotherMonom)
@@ -273,8 +276,8 @@ inline void Monom::multiply(const Monom& anotherMonom)
             {
                 if ((*iterator)->variable == anotherIterator->variable)
                 {
-                    (*iterator)->degree += anotherIterator->degree;
-                    totalDegree_ += anotherIterator->degree;
+                    (*iterator)->degree = static_cast<Integer>((*iterator)->degree + anotherIterator->degree);
+                    totalDegree_ = static_cast<Integer>(totalDegree_ + anotherIterator->degree);
                     iterator = &((*iterator)->next);
                     anotherIterator = anotherIterator->next;
                 }
@@ -286,7 +289,7 @@ inline void Monom::multiply(const Monom& anotherMonom)
                 {
                     auto* newNode = new VarsListNode{anotherIterator->variable, anotherIterator->degree, *iterator};
                     *iterator = newNode;
-                    totalDegree_ += anotherIterator->degree;
+                    totalDegree_ = static_cast<Integer>(totalDegree_ + anotherIterator->degree);
 
                     iterator = &(newNode->next);
                     anotherIterator = anotherIterator->next;
@@ -296,7 +299,7 @@ inline void Monom::multiply(const Monom& anotherMonom)
             while (anotherIterator)
             {
                 *iterator = new VarsListNode{anotherIterator->variable, anotherIterator->degree, nullptr};
-                totalDegree_ += anotherIterator->degree;
+                totalDegree_ = static_cast<Integer>(totalDegree_ + anotherIterator->degree);
 
                 iterator = &((*iterator)->next);
                 anotherIterator = anotherIterator->next;
@@ -322,9 +325,9 @@ inline void Monom::divide(const Monom& anotherMonom)
             }
             else
             {
-                (*iterator)->degree -= anotherIterator->degree;
+                (*iterator)->degree = static_cast<Integer>((*iterator)->degree - anotherIterator->degree);
             }
-            totalDegree_ -= anotherIterator->degree;
+            totalDegree_ = static_cast<Integer>(totalDegree_ - anotherIterator->degree);
             anotherIterator = anotherIterator->next;
         }
         else if ((*iterator)->variable > anotherIterator->variable)
@@ -350,7 +353,7 @@ inline void Monom::setQuotientOf(const Monom& monomA, const Monom& monomB)
                 *iterator = new VarsListNode{iteratorA->variable,
                                              static_cast<Integer>(iteratorA->degree - iteratorB->degree),
                                              nullptr};
-                totalDegree_ += (*iterator)->degree;
+                totalDegree_ = static_cast<Integer>(totalDegree_ + (*iterator)->degree);
                 iterator = &((*iterator)->next);
             }
             iteratorA = iteratorA->next;
@@ -359,7 +362,7 @@ inline void Monom::setQuotientOf(const Monom& monomA, const Monom& monomB)
         else
         {
             *iterator = new VarsListNode{iteratorA->variable, iteratorA->degree, nullptr};
-            totalDegree_ += (*iterator)->degree;
+            totalDegree_ = static_cast<Integer>(totalDegree_ + (*iterator)->degree);
             iterator = &((*iterator)->next);
 
             if (iteratorA->variable > iteratorB->variable)
@@ -372,7 +375,7 @@ inline void Monom::setQuotientOf(const Monom& monomA, const Monom& monomB)
     while (iteratorA)
     {
         *iterator = new VarsListNode{iteratorA->variable, iteratorA->degree, nullptr};
-        totalDegree_ += (*iterator)->degree;
+        totalDegree_ = static_cast<Integer>(totalDegree_ + (*iterator)->degree);
         iterator = &((*iterator)->next);
 
         iteratorA = iteratorA->next;

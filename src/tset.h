@@ -26,7 +26,7 @@ public:
 
     const Triple* findDivisor(const Monom& monom) const;
     std::set<Monom::Integer> nonMulti(const Triple* triple) const;
-    Triple* const back() const;
+    const Triple* back() const;
 
     void collectNonMultiProlongations(Iterator& iterator, std::list<Triple*>& set);
 
@@ -87,7 +87,7 @@ inline std::set<Monom::Integer> TSet::nonMulti(const Triple* triple) const
     return jTree_.nonMulti(triple);
 }
 
-inline Triple* const TSet::back() const
+inline const Triple* TSet::back() const
 {
     return tripleList_.back();
 }

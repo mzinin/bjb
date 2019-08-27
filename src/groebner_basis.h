@@ -13,8 +13,8 @@ public:
 
     void construct(const std::list<Polynom*>& set);
 
-    const Polynom& operator[](int number) const;
-    unsigned length() const;
+    const Polynom& operator[](size_t number) const;
+    size_t length() const;
 
     friend std::ostream& operator<<(std::ostream& out, const GroebnerBasis& groebnerBasis);
 
@@ -22,7 +22,7 @@ private:
     bool criterion1(const Triple* p, const Triple* g) const;
     bool criterion2(const Triple* p, const Triple* g) const;
     bool criterion3(const Triple* p, const Triple* g) const;
-    bool criterion4(const Triple* p, const Triple* g) const;
+    bool criterion4(const Triple* p) const;
 
     Polynom* normalForm(const Triple* triple) const;
 

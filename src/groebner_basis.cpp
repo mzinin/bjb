@@ -60,17 +60,17 @@ void GroebnerBasis::construct(const std::list<Polynom*>& set)
     }
 }
 
-const Polynom& GroebnerBasis::operator[](int num) const
+const Polynom& GroebnerBasis::operator[](size_t num) const
 {
     std::list<Polynom*>::const_iterator it(gBasis_.begin());
-    for (unsigned i = length() - 1 - num; i > 0; --i)
+    for (size_t i = length() - 1 - num; i > 0; --i)
     {
         ++it;
     }
     return **it;
 }
 
-unsigned GroebnerBasis::length() const
+size_t GroebnerBasis::length() const
 {
     return gBasis_.size();
 }
@@ -114,7 +114,7 @@ bool GroebnerBasis::criterion3(const Triple* p, const Triple* g) const
     return false;
 }
 
-bool GroebnerBasis::criterion4(const Triple* p, const Triple* g) const
+bool GroebnerBasis::criterion4(const Triple* p) const
 {
     for (auto iterator = intermediateBasis_.begin();
          iterator != intermediateBasis_.end() && p->weakAncestor() != *iterator;
@@ -149,20 +149,21 @@ Polynom* GroebnerBasis::normalForm(const Triple* triple) const
         return 0;
     }
 
-    const Triple* involutiveDivisor = nullptr;
-    if (triple->variable() != -1 && (involutiveDivisor = intermediateBasis_.findDivisor(triple->polynomLm())))
+    if (triple->variable() != Monom::invalidVariable)
     {
-        if (criterion1(triple, involutiveDivisor) ||
-            criterion2(triple, involutiveDivisor)/* ||
-            criterion3(triple, involutiveDivisor) ||
-            criterion4(triple, involutiveDivisor)*/)
+        const Triple* involutiveDivisor = intermediateBasis_.findDivisor(triple->polynomLm());
+        if (involutiveDivisor &&
+            (criterion1(triple, involutiveDivisor) ||
+             criterion2(triple, involutiveDivisor)/* ||
+             criterion3(triple, involutiveDivisor) ||
+             criterion4(triple)*/))
         {
             return 0;
         }
     }
 
     Polynom* originalForm = nullptr;
-    if (triple->variable() == -1)
+    if (triple->variable() == Monom::invalidVariable)
     {
         originalForm = new Polynom(*triple->polynom());
     }
@@ -181,7 +182,7 @@ Polynom* GroebnerBasis::normalForm(const Triple* triple) const
     Polynom* normalForm = new Polynom();
     while (!originalForm->isZero())
     {
-        involutiveDivisor = intermediateBasis_.findDivisor(originalForm->lm());
+        const Triple* involutiveDivisor = intermediateBasis_.findDivisor(originalForm->lm());
         while (involutiveDivisor)
         {
             originalForm->headReduction(*involutiveDivisor->polynom());
@@ -191,7 +192,7 @@ Polynom* GroebnerBasis::normalForm(const Triple* triple) const
             }
             else
             {
-                involutiveDivisor = 0;
+                involutiveDivisor = nullptr;
             }
         }
 
@@ -284,8 +285,8 @@ void GroebnerBasis::reduceSet()
         }
     }
 
-    unsigned tmpPolySetSize = tmpPolySet.size();
-    for (unsigned i = 0; i < tmpPolySetSize; ++i)
+    size_t tmpPolySetSize = tmpPolySet.size();
+    for (size_t i = 0; i < tmpPolySetSize; ++i)
     {
         Polynom* currentPolynom = tmpPolySet.front();
         tmpPolySet.pop_front();
@@ -349,7 +350,7 @@ void GroebnerBasis::constructInvolutiveBasis()
                 }
             }
 
-            intermediateBasis_.pushBack(new Triple(newNormalForm, currentAncestor, currentNmpSet, 0, -1));
+            intermediateBasis_.pushBack(new Triple(newNormalForm, currentAncestor, currentNmpSet, 0, Monom::invalidVariable));
             if (!newNormalForm->degree())
             {
                 return;

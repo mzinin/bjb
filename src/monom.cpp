@@ -4,6 +4,7 @@
 #include <sstream>
 
 
+const Monom::Integer Monom::invalidVariable = static_cast<Monom::Integer>(-1);
 FastAllocator Monom::VarsListNode::allocator_(sizeof(Monom::VarsListNode));
 FastAllocator Monom::allocator_(sizeof(Monom));
 Monom::Integer Monom::dimIndepend_ = 0;
@@ -82,7 +83,7 @@ Monom::Integer Monom::gcdDegree(const Monom& monomA, const Monom& monomB)
     {
         if (iteratorA->variable == iteratorB->variable)
         {
-            result += std::min(iteratorA->degree, iteratorB->degree);
+            result = static_cast<Integer>(result + std::min(iteratorA->degree, iteratorB->degree));
             iteratorA = iteratorA->next;
             iteratorB = iteratorB->next;
         }
@@ -107,31 +108,31 @@ Monom::Integer Monom::lcmDegree(const Monom& monomA, const Monom& monomB)
     {
         if (iteratorA->variable == iteratorB->variable)
         {
-            result += std::max(iteratorA->degree, iteratorB->degree);
+            result = static_cast<Integer>(result + std::max(iteratorA->degree, iteratorB->degree));
             iteratorA = iteratorA->next;
             iteratorB = iteratorB->next;
         }
         else if (iteratorA->variable > iteratorB->variable)
         {
-            result += iteratorA->degree;
+            result = static_cast<Integer>(result + iteratorA->degree);
             iteratorA = iteratorA->next;
         }
         else
         {
-            result += iteratorB->degree;
+            result = static_cast<Integer>(result + iteratorB->degree);
             iteratorB = iteratorB->next;
         }
     }
 
     while (iteratorA)
     {
-        result += iteratorA->degree;
+        result = static_cast<Integer>(result + iteratorA->degree);
         iteratorA = iteratorA->next;
     }
 
     while (iteratorB)
     {
-        result += iteratorB->degree;
+        result = static_cast<Integer>(result + iteratorB->degree);
         iteratorB = iteratorB->next;
     }
 
@@ -149,7 +150,7 @@ void Monom::setGcdOf(const Monom& monomA, const Monom& monomB)
         if (iteratorA->variable == iteratorB->variable)
         {
             *iterator = new VarsListNode{iteratorA->variable, std::min(iteratorA->degree, iteratorB->degree), nullptr};
-            totalDegree_ += (*iterator)->degree;
+            totalDegree_ = static_cast<Integer>(totalDegree_ + (*iterator)->degree);
 
             iterator = &((*iterator)->next);
             iteratorA = iteratorA->next;
@@ -177,7 +178,7 @@ void Monom::setLcmOf(const Monom& monomA, const Monom& monomB)
         if (iteratorA->variable == iteratorB->variable)
         {
             *iterator = new VarsListNode{iteratorA->variable, std::max(iteratorA->degree, iteratorB->degree), nullptr};
-            totalDegree_ += (*iterator)->degree;
+            totalDegree_ = static_cast<Integer>(totalDegree_ + (*iterator)->degree);
 
             iterator = &((*iterator)->next);
             iteratorA = iteratorA->next;
@@ -186,7 +187,7 @@ void Monom::setLcmOf(const Monom& monomA, const Monom& monomB)
         else if (iteratorA->variable > iteratorB->variable)
         {
             *iterator = new VarsListNode{iteratorA->variable, iteratorA->degree, nullptr};
-            totalDegree_ += (*iterator)->degree;
+            totalDegree_ = static_cast<Integer>(totalDegree_ + (*iterator)->degree);
 
             iterator = &((*iterator)->next);
             iteratorA = iteratorA->next;
@@ -194,7 +195,7 @@ void Monom::setLcmOf(const Monom& monomA, const Monom& monomB)
         else
         {
             *iterator = new VarsListNode{iteratorB->variable, iteratorB->degree, nullptr};
-            totalDegree_ += (*iterator)->degree;
+            totalDegree_ = static_cast<Integer>(totalDegree_ + (*iterator)->degree);
 
             iterator = &((*iterator)->next);
             iteratorB = iteratorB->next;
@@ -204,7 +205,7 @@ void Monom::setLcmOf(const Monom& monomA, const Monom& monomB)
     while (iteratorA)
     {
             *iterator = new VarsListNode{iteratorA->variable, iteratorA->degree, nullptr};
-            totalDegree_ += (*iterator)->degree;
+            totalDegree_ = static_cast<Integer>(totalDegree_ + (*iterator)->degree);
 
             iterator = &((*iterator)->next);
             iteratorA = iteratorA->next;
@@ -213,7 +214,7 @@ void Monom::setLcmOf(const Monom& monomA, const Monom& monomB)
     while (iteratorB)
     {
             *iterator = new VarsListNode{iteratorB->variable, iteratorB->degree, nullptr};
-            totalDegree_ += (*iterator)->degree;
+            totalDegree_ = static_cast<Integer>(totalDegree_ + (*iterator)->degree);
 
             iterator = &((*iterator)->next);
             iteratorB = iteratorB->next;
@@ -236,7 +237,7 @@ std::istream& operator>>(std::istream& in, Monom& monom)
         do
         {
             degree = 1;
-            std::streampos posbeg = in.tellg();
+            posbeg = in.tellg();
             if ((in >> std::ws).peek() == '^')
             {
                 in.get();
@@ -246,7 +247,7 @@ std::istream& operator>>(std::istream& in, Monom& monom)
                     in.setstate(std::ios::failbit);
                 }
             }
-            monom.prolong(var, degree);
+            monom.prolong(static_cast<Monom::Integer>(var), static_cast<Monom::Integer>(degree));
             posbeg = in.tellg();
             if (in.peek() != '*')
             {
@@ -263,6 +264,7 @@ std::istream& operator>>(std::istream& in, Monom& monom)
                 }
             }
         } while (var >= 0);
+
         if (in.eof() && degree >= 0)
         {
             in.clear();
@@ -279,7 +281,7 @@ std::ostream& operator<<(std::ostream& out, const Monom& monom)
     }
     else
     {
-        int i = 0;
+        Monom::Integer i = 0;
         Variables::ConstIterator j(monom.independVariables_.begin());
         while (monom[i] == 0)
         {

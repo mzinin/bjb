@@ -74,7 +74,7 @@ namespace
         {
             if (values_.empty())
             {
-                return longKey_ == option || option.size() == 1 && option[0] == shortKey_;
+                return longKey_ == option || (option.size() == 1 && option[0] == shortKey_);
             }
 
             std::size_t position = option.find(OPTION_VALUE_DELIMITER);
@@ -134,7 +134,7 @@ namespace
                 std::cout << "\t" << comment_ << "," << std::endl;
                 std::cout << "\tAdmissible values are:" << std::endl;
 
-                unsigned valueFieldWidth = 0;
+                size_t valueFieldWidth = 0;
                 for (auto i = values_.begin(); i != values_.end(); ++i)
                 {
                     if (i->comment.empty())
@@ -152,7 +152,7 @@ namespace
                     {
                         continue;
                     }
-                    std::cout << "\t\t" << std::setw(valueFieldWidth) << std::left << i->value << " - ";
+                    std::cout << "\t\t" << std::setw(static_cast<int>(valueFieldWidth)) << std::left << i->value << " - ";
                     std::cout  << i->comment << (i == values_.end()-- ? "," : ";") << std::endl;
                 }
             }
@@ -290,7 +290,7 @@ bool Launcher::analizeArguments(int argc, char *argv[])
         }
         else if (currentArgument.size() > 1 && currentArgument.find(OPTION_SHORT_PREFIX) == 0)
         {
-            for (int p = strlen(OPTION_SHORT_PREFIX); p < currentArgument.size(); ++p)
+            for (auto p = strlen(OPTION_SHORT_PREFIX); p < currentArgument.size(); ++p)
             {
                 arguments.push_back(std::string(1, currentArgument[p]));
             }

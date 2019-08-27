@@ -43,7 +43,7 @@ private:
     const Triple* ancestor_ = nullptr;
     const Triple* weakAncestor_ = nullptr;
     std::set<Monom::Integer> nmp_;
-    const Monom::Integer variable_ = -1;
+    const Monom::Integer variable_ = Monom::invalidVariable;
 };
 
 

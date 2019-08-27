@@ -172,7 +172,7 @@ inline void JanetTree::Iterator::build(Monom::Integer degree, Monom::Integer var
     Node* j = r;
     while (degree > triple->polynomLm()[var])
     {
-        degree -= triple->polynomLm()[var];
+        degree = static_cast<Monom::Integer>(degree - triple->polynomLm()[var]);
         ++var;
         j->nextVariable = new JanetTree::Node(triple->polynomLm()[var]);
         j = j->nextVariable;
