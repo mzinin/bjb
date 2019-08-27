@@ -11,7 +11,7 @@ To compile this project one would need:
 * C++ compiler with C++14 support (tested ones are GCC and MSVC)
 * CMake >= 3.5.0
 
-### Compile library
+### Build
 
 On Linux:
 ```
