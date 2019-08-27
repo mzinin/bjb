@@ -50,10 +50,6 @@ public:
     bool hasSameOnlyVariable(const Monom& anotherMonom) const;
 
     static Integer gcdDegree(const Monom& monomA, const Monom& monomB);
-    static Integer lcmDegree(const Monom& monomA, const Monom& monomB);
-    void setGcdOf(const Monom& monomA, const Monom& monomB);
-    void setLcmOf(const Monom& monomA, const Monom& monomB);
-
     static void addVariable(const std::string& var);
     static const std::string& variable(Integer var);
     static Integer dimIndepend();
