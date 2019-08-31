@@ -41,7 +41,7 @@ The supported option are:
 | -h        | --help               | print help message and exit         |
 | -v        | --version            | print version and exit              |
 | -s        | --collect-statistics | collect and print out statistics    |
-| -a        | --print-answer       | [rint out constructed Gröbner Basis |
+| -a        | --print-answer       | print out constructed Gröbner basis |
 
 `bjb` will read the content on the GNV file and build a boolean Gröbner basis for the initial basis. If and only if the GNV file contains the correct answer, the output message `The answer is CORRECT` of `The answer is WRONG` has meaning.
 
