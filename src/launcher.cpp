@@ -333,7 +333,7 @@ bool Launcher::analizeArguments(int argc, char *argv[])
 
 bool Launcher::getTaskFromFile(std::list<Polynom*>& initialSet, std::list<Polynom*>& initialAnswer) const
 {
-    std::ifstream inputFileStream(inputFileName_.c_str());
+    std::ifstream inputFileStream(inputFileName_);
     if (!inputFileStream)
     {
         std::cerr << "No such file: '" << inputFileName_ << "'." << std::endl;

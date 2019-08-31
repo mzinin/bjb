@@ -60,7 +60,6 @@ private:
 
         void build(Monom::Integer degree, Monom::Integer var, Triple* triple);
         void erase();
-        void exclude();
         void clear();
 
     private:
